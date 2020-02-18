@@ -12,6 +12,8 @@ package frc.robot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+
 import com.revrobotics.CANError;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
@@ -35,7 +37,10 @@ public class Shooter {
     private CANEncoder m_encoder;
     public double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput;
 
-    private Joystick operatorController = JoystickOI.operatorJoy;
+    private static WPI_TalonSRX motorShooterOne = new WPI_TalonSRX(Constants.kMotorShooter1Port);
+    private static WPI_TalonSRX motorShooterTwo = new WPI_TalonSRX(Constants.kMotorShooter2Port);
+
+    private Joystick operatorController = new Joystick(Constants.kOperatorController);
 
     // private double fourBarPosition = 0.0;
     // public static double setPosition = 0.0;
@@ -123,6 +128,39 @@ public class Shooter {
      * Periodic method to update shooter
      */
     public void updateShooter() {
+        int distance;
+        int index;
+
+        double motor_revs;
+
+        int target_angle;
+        int target_speed;
+
+        distance = getTargetDistance();
+
+        /*Determine lookup table index*/
+        if(distance <= 5){
+            index = 0;
+        } else if ((distance > 5 ) && (distance <= 10)){
+            index = 1;
+        } else if ((distance > 10 ) && (distance <= 15)){
+            index = 2;
+        } else if ((distance > 15 ) && (distance <= 20)){
+            index = 3;
+        } else if ((distance > 20 ) && (distance <= 25)){
+            index = 4;
+        } else {
+            index = 5;
+        }
+
+        /*Lookup shooter angle and speed*/
+        target_angle = ShooterLookup.shooterLookupTable[index][0];
+        target_speed = ShooterLookup.shooterLookupTable[index][1];
+
+        /*Convert Shooter Angle to motor revolutions*/
+        motor_revs = target_angle * Constants.kShooterAltMotRevsPerDegree;
+
+        /*Set shooter angle*/
         // Set motor output to joystick value
         //shooterMotorMaster.set(operatorController.getY());
 
@@ -181,5 +219,15 @@ public class Shooter {
     // public static void setOverride(boolean state) {
     //     override = state;
     // }
+
+    private int getTargetDistance(){
+
+        //TODO: add code for getting camera distance
+        return(0);
+    }
+
+    private void setShooterAzimuth(double target_angle){
+
+    }
 
 }

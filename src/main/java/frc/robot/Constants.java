@@ -30,6 +30,13 @@ public class Constants {
     public static final int kInvertRightMotorMultiplier = -1;
     public static final double kDriveRampRate = 0.08;
 
+    public static final int kMotorLeftMasterPort =      0;
+    public static final int kMotorLeftFollowerPort =    1;
+    public static final int kMotorRightMasterPort =     2;
+    public static final int kMotorRightFollowerPort =   3;
+    public static final int kMotorShooter1Port =        4;
+    public static final int kMotorShooter2Port =        5;
+
 
     //encoder constants
     public static final int kEncoderDistancePerRevolution = 4096;
@@ -144,4 +151,6 @@ public class Constants {
     public static final double kInfaredRange = 0.35;
     public static final double kInfaredAlignGain = 0.6;
 
+    //Shooter constants
+    public static final double kShooterAltMotRevsPerDegree = 1.95; // -> 360*(100:1 VP x 1.95:1 gear drive)    
 }
