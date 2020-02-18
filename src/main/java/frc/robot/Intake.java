@@ -18,9 +18,10 @@ import edu.wpi.first.wpilibj.Solenoid;
  */
 public class Intake {
     private final static TalonSRX intakeMotor = new TalonSRX(Constants.kIntakeMotorPort);
-    private Joystick operatorController = DriveTrain.operatorController;
+    private final static TalonSRX indexStage1Motor = new TalonSRX(Constants.kMotorIndexStage1Port);
+    private final static TalonSRX indexStage2Motor = new TalonSRX(Constants.kMotorIndexStage2Port);
 
-    private final static Solenoid gearIntakeBoi = new Solenoid(Constants.kGearIntakeSolenoid);
+    private Joystick operatorController = DriveTrain.operatorController;
 
     private static boolean manualControl = true;
 
@@ -31,29 +32,18 @@ public class Intake {
         double intakeIn = operatorController.getRawAxis(Constants.kLeftTrigger);
         double intakeOut = operatorController.getRawAxis(Constants.kRightTrigger);
 
-        
+        if(Math.abs(intakeIn) >= Constants.kTriggerDeadZone){
+            indexStage1Motor.set(ControlMode.PercentOutput, 1);
+        } else{
+            indexStage1Motor.set(ControlMode.PercentOutput, 0);
+        }
 
-    }
+        if(Math.abs(intakeOut) >= Constants.kTriggerDeadZone){
+            indexStage2Motor.set(ControlMode.PercentOutput, 1);
+        } else{
+            indexStage1Motor.set(ControlMode.PercentOutput, 0);
+        }
 
-    /**
-     * Sets the wheel intake speed
-     * @param power -1.0 to 1.0
-     */
-    public static void setIntakeState(double power) {
-        intakeMotor.set(ControlMode.PercentOutput, power);
-
-    }
-
-    /**
-     * Sets the hatch claw grabber to on/off
-     * @param state on/off
-     */
-    public static void setHatchState(boolean state) {
-        gearIntakeBoi.set(state);
-    }
-
-    public static void setControlState(boolean manualControlEnabled) {
-        manualControl = manualControlEnabled;
     }
 
 }

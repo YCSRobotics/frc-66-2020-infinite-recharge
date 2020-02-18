@@ -28,7 +28,9 @@ public class Constants {
     public static final int kMotorRightFollowerPort =   3;
     public static final int kMotorShooter1Port =        4;
     public static final int kMotorShooter2Port =        5;
+    public static final int kMotorIndexStage1Port =     6;
     public static final int kIntakeMotorPort=           7;
+    public static final int kMotorIndexStage2Port =     8;
 
     //encoder constants
     public static final int kEncoderDistancePerRevolution = 4096;
@@ -69,6 +71,7 @@ public class Constants {
 
     //drive and fourbar deadzones
     public static final double kDeadZone = 0.05;
+    public static final double kTriggerDeadZone = 0.1;
     public static final double kFourBarDeadZone = 0.2;
 
     //gains
