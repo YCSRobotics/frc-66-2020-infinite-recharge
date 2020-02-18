@@ -12,7 +12,8 @@ package frc.robot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
 import com.revrobotics.CANError;
 import com.revrobotics.CANSparkMax;
@@ -37,8 +38,8 @@ public class Shooter {
     private CANEncoder m_encoder;
     public double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput;
 
-    private static WPI_TalonSRX motorShooterOne = new WPI_TalonSRX(Constants.kMotorShooter1Port);
-    private static WPI_TalonSRX motorShooterTwo = new WPI_TalonSRX(Constants.kMotorShooter2Port);
+    private static TalonSRX motorShooterOne = new TalonSRX(Constants.kMotorShooter1Port);
+    private static TalonSRX motorShooterTwo = new TalonSRX(Constants.kMotorShooter2Port);
 
     private Joystick operatorController = new Joystick(Constants.kOperatorController);
 
@@ -162,8 +163,8 @@ public class Shooter {
 
         /*Set shooter angle*/
         // Set motor output to joystick value
-        //shooterMotorMaster.set(operatorController.getY());
-
+        motorShooterOne.set(ControlMode.PercentOutput,0.85);
+        motorShooterTwo.set(ControlMode.PercentOutput,-0.85);
         // read PID coefficients from SmartDashboard
         double p = SmartDashboard.getNumber("P Gain", 0);
         double i = SmartDashboard.getNumber("I Gain", 0);

@@ -23,11 +23,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  */
 public class DriveTrain {
     //initialize drivetrain stuff
-    private static TalonSRX leftMaster = new TalonSRX(Constants.kLeftMotorMaster);
-    private static TalonSRX leftFollower = new TalonSRX(Constants.kLeftMotorFollower);
+    private static TalonSRX leftMaster = new TalonSRX(Constants.kMotorLeftMasterPort);
+    private static TalonSRX leftFollower = new TalonSRX(Constants.kMotorLeftFollowerPort);
 
-    private static TalonSRX rightFollower = new TalonSRX(Constants.kRightMotorFollower);
-    private static TalonSRX rightMaster = new TalonSRX(Constants.kRightMotorMaster);
+    private static TalonSRX rightFollower = new TalonSRX(Constants.kMotorRightFollowerPort);
+    private static TalonSRX rightMaster = new TalonSRX(Constants.kMotorRightMasterPort);
 
     public static Joystick driverController = new Joystick(Constants.kDriverController);
     public static Joystick operatorController = new Joystick(Constants.kOperatorController);
@@ -297,14 +297,7 @@ public class DriveTrain {
             return 0;
         }
 
-        //slow drivetrain when elevator lifted
-        if (ElevatorControl.getLiftPosition() > Constants.kElevatorDriveFinesseLimit) {
-            forwardValue = forwardValue * Constants.kElevatorDriveMaxSpeed;
-
-        } else if (driverController.getRawButton(Constants.kXButton) || driverController.getRawButton(Constants.kBButton)) {
-           //do nothing, continue
-
-        } else if(!speedyMode) {
+     if(!speedyMode) {
             forwardValue = forwardValue * Constants.kDriveSpeed;
 
         } else {

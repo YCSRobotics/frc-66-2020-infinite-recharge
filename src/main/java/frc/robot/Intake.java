@@ -17,7 +17,7 @@ import edu.wpi.first.wpilibj.Solenoid;
  * Handles code to actuate intake
  */
 public class Intake {
-    private final static TalonSRX intakeMotor = new TalonSRX(Constants.kIntakeMotor);
+    private final static TalonSRX intakeMotor = new TalonSRX(Constants.kIntakeMotorPort);
     private Joystick operatorController = DriveTrain.operatorController;
 
     private final static Solenoid gearIntakeBoi = new Solenoid(Constants.kGearIntakeSolenoid);
@@ -31,36 +31,7 @@ public class Intake {
         double intakeIn = operatorController.getRawAxis(Constants.kLeftTrigger);
         double intakeOut = operatorController.getRawAxis(Constants.kRightTrigger);
 
-        boolean slowModeActive = SensorData.getBallSensorState();
-
-        if (operatorController.getRawButton(Constants.kLeftBumper)){
-            gearIntakeBoi.set(true);
-
-        } else {
-            gearIntakeBoi.set(false); }
-
-
-        if (manualControl) {
-
-            double intakeValue = 0.0;
-            double intakeValueSlow = -0.10;
-
-            if (intakeIn > 0.05) {
-                intakeValue = -intakeIn;
-                intakeValueSlow = slowModeActive ? intakeValue : intakeValue * Constants.kIntakeSlowMaxSpeed;
-            }
-
-            if (intakeOut > 0.05) {
-                intakeValue = intakeOut;
-                intakeValueSlow = intakeValue;
-            }
-
-            if (!SensorData.getBallSensorState()) {
-                intakeValueSlow *= 0.2;
-            }
-
-            intakeMotor.set(ControlMode.PercentOutput, intakeValueSlow);
-        }
+        
 
     }
 

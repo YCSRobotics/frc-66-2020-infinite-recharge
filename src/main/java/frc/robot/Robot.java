@@ -21,6 +21,7 @@ public class Robot extends TimedRobot {
   private AutoRoutine autonomous = new AutoRoutine();
   private DriveTrain driveTrain = new DriveTrain();
   private Dashboard dashboard = new Dashboard();
+  private Shooter shooter = new Shooter();
   //private FourBarControl fourBarControl = new FourBarControl();
   //private Intake intake = new Intake();
   //private ElevatorControl elevatorControl = new ElevatorControl();
@@ -100,6 +101,8 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     driveTrain.updateDrivetrain();
+    shooter.updateShooter();
+    
     //fourBarControl.updateFourBar();
     //elevatorControl.updateLift();
     //intake.updateIntake();

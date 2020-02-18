@@ -15,15 +15,7 @@ package frc.robot;
  */
 public class Constants {
     //motor constants
-    public static final int kLeftMotorFollower = 1;
-    public static final int kLeftMotorMaster = 0;
-    public static final int kRightMotorMaster = 2;
-    public static final int kRightMotorFollower = 3;
-    public static final int kElevatorMotor = 4;
-    public static final int kFourBarMotor = 5;
-    public static final int kIntakeMotor = 6;
-    public static final int kClimberMotor = 7;
-    public static final int kPullMotor = 8;
+    
 
     public static final boolean kInvertRightMotor = false;
     public static final boolean kInvertLeftMotor = true;
@@ -36,7 +28,7 @@ public class Constants {
     public static final int kMotorRightFollowerPort =   3;
     public static final int kMotorShooter1Port =        4;
     public static final int kMotorShooter2Port =        5;
-
+    public static final int kIntakeMotorPort=           7;
 
     //encoder constants
     public static final int kEncoderDistancePerRevolution = 4096;

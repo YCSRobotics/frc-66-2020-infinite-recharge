@@ -137,9 +137,7 @@ public class Dashboard {
     public void updateDiagDashboard() {
         Shuffleboard.selectTab("DriverDisplay");
 
-        climberLimitSwitchForward.setBoolean(Climber.backWenchMotor.getSensorCollection().isFwdLimitSwitchClosed());
-        climberLimitSwitchBack.setBoolean(Climber.backWenchMotor.getSensorCollection().isRevLimitSwitchClosed());
-
+        
         matchTime.setNumber(DriverStation.getInstance().getMatchTime());
         navYawKey.setNumber(SensorData.getYaw());
         navPitchKey.setNumber(SensorData.getPitch());
@@ -152,8 +150,7 @@ public class Dashboard {
         rightMotorPosition.setNumber(DriveTrain.getRightWheelPosition());
 
         crossBoxSensor.setBoolean(SensorData.getBallSensorState());
-        elevatorPosition.setNumber(ElevatorControl.getLiftPosition());
-        fourBarPosition.setNumber(FourBarControl.getFourBarPosition());
+      
 
         tapeDetected.setBoolean(SensorData.tapeDetected());
         tapeDistance.setNumber(SensorData.distanceToVisionTarget());
@@ -162,8 +159,7 @@ public class Dashboard {
         leftUltraDistance.setNumber(SensorData.getLeftIRDistance());
         rightUltraDistance.setNumber(SensorData.getRightIRDistance());
 
-        wenchPosition.setNumber(Climber.getWenchPosition());
-        bottomLimitSwitch.setBoolean(ElevatorControl.bottomLimit());
+       
 
     }
 }
