@@ -15,13 +15,7 @@ package frc.robot;
  */
 public class Constants {
     //motor constants
-    
-
-    public static final boolean kInvertRightMotor = false;
-    public static final boolean kInvertLeftMotor = true;
-    public static final int kInvertRightMotorMultiplier = -1;
-    public static final double kDriveRampRate = 0.08;
-
+    //CAN Talons
     public static final int kMotorLeftMasterPort =      0;
     public static final int kMotorLeftFollowerPort =    1;
     public static final int kMotorRightMasterPort =     2;
@@ -29,8 +23,17 @@ public class Constants {
     public static final int kMotorShooter1Port =        4;
     public static final int kMotorShooter2Port =        5;
     public static final int kMotorIndexStage1Port =     6;
-    public static final int kIntakeMotorPort=           7;
+    public static final int kMotorIntakePort=           7;
     public static final int kMotorIndexStage2Port =     8;
+
+    //Spark Max (Neos)
+    public static final int kMotorShooterAltitude =     0;
+    public static final int kMotorShooterAzimuth  =     1;
+
+    public static final boolean kInvertRightMotor = false;
+    public static final boolean kInvertLeftMotor = true;
+    public static final int kInvertRightMotorMultiplier = -1;
+    public static final double kDriveRampRate = 0.08;
 
     //encoder constants
     public static final int kEncoderDistancePerRevolution = 4096;
@@ -45,9 +48,6 @@ public class Constants {
 
     public static final int kLeftUltraSensor = 0;
     public static final int kRightUltraSensor = 1;
-
-     // Neo550 constants
-     public static final int kNeoDeviceID = 1;
 
     //joystick constants
     public final static int kDriverController = 0;

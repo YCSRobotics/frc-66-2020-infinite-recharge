@@ -187,7 +187,7 @@ public class AutoRoutine {
 
     //autonomously releases the hatch and begins to back away
     private void stateActionReleaseHatch() {
-        Intake.setHatchState(true);
+        //Intake.setHatchState(true);
         DriveTrain.setMoveDistance(Constants.kBackupDistance, -Constants.kBackupPower);
         currentAutonState = BACK_TARGET;
 

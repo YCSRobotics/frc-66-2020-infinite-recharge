@@ -11,14 +11,14 @@ package frc.robot;
  * Add your docs here.
  */
 public class ShooterLookup {
-    public static final int[][] shooterLookupTable = {
+    public static final double[][] shooterLookupTable = {
         /*{[0] - Angle, [1] - Speed}*/
-        {50, 1000},
-        {50, 2000},
-        {45, 3000},
-        {45, 4000},
-        {45, 5000},
-        {30, 6000}
+        {50, 0.75},
+        {50, 0.75},
+        {45, 0.85},
+        {45, 0.85},
+        {45, 0.95},
+        {30, 0.95}
     };
 
 }

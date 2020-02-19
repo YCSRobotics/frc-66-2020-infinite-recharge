@@ -22,6 +22,8 @@ public class Robot extends TimedRobot {
   private DriveTrain driveTrain = new DriveTrain();
   private Dashboard dashboard = new Dashboard();
   private Shooter shooter = new Shooter();
+  private Intake intake = new Intake();
+
   //private FourBarControl fourBarControl = new FourBarControl();
   //private Intake intake = new Intake();
   //private ElevatorControl elevatorControl = new ElevatorControl();
@@ -35,7 +37,6 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     m_chooser.setDefaultOption("Default - Manual", kDefaultAuto);
-    m_chooser.setName("Sandstorm Auto");
     m_chooser.addOption("Center - Ship Right", kCenterFrontBayRight);
     m_chooser.addOption("Center - Ship Left", kCenterFrontBayLeft);
     m_chooser.addOption("Left Rocket Lvl 1", kLftRocketLvl1);
@@ -102,6 +103,8 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
     driveTrain.updateDrivetrain();
     shooter.updateShooter();
+    intake.updateIntake();
+
     
     //fourBarControl.updateFourBar();
     //elevatorControl.updateLift();
