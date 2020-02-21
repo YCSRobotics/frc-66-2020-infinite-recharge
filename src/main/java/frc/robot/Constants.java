@@ -30,6 +30,10 @@ public class Constants {
     public static final int kMotorShooterAltitude =     0;
     public static final int kMotorShooterAzimuth  =     1;
 
+    //CANCoders
+    public static final int kCANCoderOne = 0;
+    public static final int kCANCoderTwo = 1;
+
     public static final boolean kInvertRightMotor = false;
     public static final boolean kInvertLeftMotor = true;
     public static final int kInvertRightMotorMultiplier = -1;

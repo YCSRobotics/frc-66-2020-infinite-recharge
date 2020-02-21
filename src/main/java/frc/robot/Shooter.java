@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
-
+import com.ctre.phoenix.sensors.CANCoder;
 import com.revrobotics.CANError;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
@@ -38,8 +38,13 @@ public class Shooter {
     private CANPIDController m_pidAltCntlr;
     private CANPIDController m_pidAziCntlr;
 
+    //SPARK MAX integrated encoders
     private CANEncoder m_encoderAltCntlr;
     private CANEncoder  m_encoderAziCntlr;
+
+    //CTRE CANCoders
+    private static CANCoder canCoderOne = new CANCoder(Constants.kCANCoderOne);
+    private static CANCoder canCoderTwo = new CANCoder(Constants.kCANCoderTwo);
 
     public double kP_alt, kI_alt, kD_alt, kIz_alt, kFF_alt, kMaxOutput_alt, kMinOutput_alt;
     public double kP_azi, kI_azi, kD_azi, kIz_azi, kFF_azi, kMaxOutput_azi, kMinOutput_azi;
@@ -70,6 +75,7 @@ public class Shooter {
         // Encoder object created to display position values
         m_encoderAltCntlr = shooterAltitudeMotor.getEncoder();
         m_encoderAziCntlr = shooterAzimuthMotor.getEncoder();
+
 
          // PID coefficients
         kP_alt = 0.1; 
@@ -138,6 +144,9 @@ public class Shooter {
         SmartDashboard.putNumber("Shooter Max Output", kMaxOutput_shtr);
         SmartDashboard.putNumber("Shooter Min Output", kMinOutput_shtr);
         SmartDashboard.putNumber("Shooter Set Rotations", 0);
+
+        SmartDashboard.putNumber("Shooter 1 Speed",0);
+        SmartDashboard.putNumber("Shooter 2 Speed",0);
 
         SmartDashboard.putNumber("Target Distance", 0);
 
@@ -220,7 +229,7 @@ public class Shooter {
         if((iz_azi != kIz_azi)) { m_pidAziCntlr.setIZone(iz_azi); kIz_azi = iz_azi; }
         if((ff_azi != kFF_azi)) { m_pidAziCntlr.setFF(ff_azi); kFF_azi = ff_azi; }
         if((max_azi != kMaxOutput_azi) || (min_azi != kMinOutput_azi)) { 
-            m_pidaziCntlr.setOutputRange(min_azi, max_azi); 
+            m_pidAziCntlr.setOutputRange(min_azi, max_azi); 
             kMinOutput_azi = min_azi; kMaxOutput_azi = max_azi; 
         }
 
@@ -249,6 +258,9 @@ public class Shooter {
         // Set motor output to joystick value
         motorShooterOne.set(ControlMode.PercentOutput, target_speed);
         motorShooterTwo.set(ControlMode.PercentOutput,-(target_speed));
+
+        SmartDashboard.putNumber("Shooter 1 Speed", canCoderOne.getVelocity());
+        SmartDashboard.putNumber("Shooter 2 Speed", canCoderTwo.getVelocity());
 
         // periodically read voltage, temperature, and applied output and publish to
         // SmartDashboard
@@ -287,6 +299,11 @@ public class Shooter {
         SmartDashboard.putNumber("Altitude SetPoint", motor_revs);
 
         m_pidAltCntlr.setReference(motor_revs, ControlType.kPosition);
+    }
+
+    public double getShooterMotor1Speed(){
+        //returns degrees/second
+        return(canCoderOne.getVelocity());
     }
 
 }

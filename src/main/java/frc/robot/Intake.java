@@ -42,14 +42,14 @@ public class Intake {
         SmartDashboard.putNumber("Right Trigger", intakeStage2);
 
         if(Math.abs(intakeStage1) >= Constants.kTriggerDeadZone){
-            indexStage1Motor.set(ControlMode.PercentOutput, -1);
+            indexStage1Motor.set(ControlMode.PercentOutput, 1);
         } else{
-            indexStage1Motor.set(ControlMode.PercentOutput, 0.40);
+            indexStage1Motor.set(ControlMode.PercentOutput, -0.40);
         }
 
         if(Math.abs(intakeStage2) >= Constants.kTriggerDeadZone){
             indexStage2Motor.set(ControlMode.PercentOutput, -1);
-            intakeMotor.set(ControlMode.PercentOutput, -0.50);
+            intakeMotor.set(ControlMode.PercentOutput, -.6);
         } else{
             indexStage2Motor.set(ControlMode.PercentOutput, 0);
             intakeMotor.set(ControlMode.PercentOutput, 0);
