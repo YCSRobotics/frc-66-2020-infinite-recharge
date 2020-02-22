@@ -22,13 +22,13 @@ public class Constants {
     public static final int kMotorRightFollowerPort =   3;
     public static final int kMotorShooter1Port =        4;
     public static final int kMotorShooter2Port =        5;
-    public static final int kMotorIndexStage1Port =     6;
+    public static final int kMotorIndexStage2Port =     6;
     public static final int kMotorIntakePort=           7;
-    public static final int kMotorIndexStage2Port =     8;
+    public static final int kMotorIndexStage1Port =     8;
 
     //Spark Max (Neos)
-    public static final int kMotorShooterAltitude =     0;
-    public static final int kMotorShooterAzimuth  =     1;
+    public static final int kMotorShooterAltitude =     1;
+    public static final int kMotorShooterAzimuth  =     2;
 
     //CANCoders
     public static final int kCANCoderOne = 0;
@@ -151,5 +151,6 @@ public class Constants {
     public static final double kInfaredAlignGain = 0.6;
 
     //Shooter constants
-    public static final double kShooterAltMotRevsPerDegree = 1.95; // -> 360*(100:1 VP x 1.95:1 gear drive)    
+    public static final double kShooterAltMotRevsPerDegree = .504;   
+    public static final double kShooterAziMotRevsPerDegree = 1.03;    
 }

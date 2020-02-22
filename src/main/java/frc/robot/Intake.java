@@ -37,23 +37,35 @@ public class Intake {
     public void updateIntake() {
         double intakeStage1 = operatorController.getRawAxis(Constants.kLeftTrigger);
         double intakeStage2 = operatorController.getRawAxis(Constants.kRightTrigger);
+        
 
         SmartDashboard.putNumber("Left Trigger", intakeStage1);
         SmartDashboard.putNumber("Right Trigger", intakeStage2);
 
         if(Math.abs(intakeStage1) >= Constants.kTriggerDeadZone){
-            indexStage1Motor.set(ControlMode.PercentOutput, 1);
+            indexStage1Motor.set(ControlMode.PercentOutput, -1);
+            intakeMotor.set(ControlMode.PercentOutput, -.75);
         } else{
-            indexStage1Motor.set(ControlMode.PercentOutput, -0.40);
+            indexStage1Motor.set(ControlMode.PercentOutput, 0);
+            intakeMotor.set(ControlMode.PercentOutput, 0);
         }
 
         if(Math.abs(intakeStage2) >= Constants.kTriggerDeadZone){
-            indexStage2Motor.set(ControlMode.PercentOutput, -1);
-            intakeMotor.set(ControlMode.PercentOutput, -.6);
+            indexStage2Motor.set(ControlMode.PercentOutput, 1);
         } else{
             indexStage2Motor.set(ControlMode.PercentOutput, 0);
-            intakeMotor.set(ControlMode.PercentOutput, 0);
         }
+
+        if(operatorController.getRawButton(Constants.kLeftBumper)){
+            indexStage1Motor.set(ControlMode.PercentOutput, 1);
+            indexStage2Motor.set(ControlMode.PercentOutput, -1);
+            intakeMotor.set(ControlMode.PercentOutput, 1);
+        }
+
+        if(operatorController.getRawButton(Constants.kRightBumper)){
+            intakeMotor.set(ControlMode.PercentOutput, 1);
+        }
+
 
     }
 

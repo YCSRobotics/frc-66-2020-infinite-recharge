@@ -62,7 +62,7 @@ public class Shooter {
          * parameters in the SPARK MAX to their factory default state. If no argument is
          * passed, these parameters will not persist between power cycles
          */
-        shooterAltitudeMotor.restoreFactoryDefaults();
+        //shooterAltitudeMotor.restoreFactoryDefaults();
 
         /**
      * In order to use PID functionality for a controller, a CANPIDController object
@@ -83,8 +83,8 @@ public class Shooter {
         kD_alt = 0; 
         kIz_alt = 0; 
         kFF_alt = 0; 
-        kMaxOutput_alt = 1; 
-        kMinOutput_alt =-1;
+        kMaxOutput_alt = .5; 
+        kMinOutput_alt =-.5;
 
         kP_azi = 0.1; 
         kI_azi = 0;
@@ -188,6 +188,8 @@ public class Shooter {
         double distance;
         int index;
 
+        double turret_output = operatorController.getRawAxis(Constants.kLeftXAxis);
+
         double target_angle;
         double target_speed;
 
@@ -233,31 +235,58 @@ public class Shooter {
             kMinOutput_azi = min_azi; kMaxOutput_azi = max_azi; 
         }
 
-        /*Determine lookup table index*/
-        if(distance <= 5){
-            index = 0;
-        } else if ((distance > 5 ) && (distance <= 10)){
-            index = 1;
-        } else if ((distance > 10 ) && (distance <= 15)){
-            index = 2;
-        } else if ((distance > 15 ) && (distance <= 20)){
-            index = 3;
-        } else if ((distance > 20 ) && (distance <= 25)){
-            index = 4;
-        } else {
-            index = 5;
+        if((operatorController.getRawButton(Constants.kYButton))||
+           (operatorController.getRawButton(Constants.kAButton))){
+            
+            if(operatorController.getRawButton(Constants.kYButton)){
+                //Front of goal shot
+                index = 0;
+            } else {
+            /*Target shot - Determine lookup table index*/
+                if(distance <= 5){
+                    index = 1;
+                } else if ((distance > 5 ) && (distance <= 10)){
+                    index = 2;
+                } else if ((distance > 10 ) && (distance <= 15)){
+                    index = 3;
+                } else if ((distance > 15 ) && (distance <= 20)){
+                    index = 4;
+                } else if ((distance > 20 ) && (distance <= 25)){
+                    index = 5;
+                } else {
+                    index = 6;
+                }
+            }
+
+            /*Lookup shooter angle and speed*/
+            target_angle = ShooterLookup.shooterLookupTable[index][0];
+            target_speed = ShooterLookup.shooterLookupTable[index][1];
+
+            /*Set shooter angle*/
+            setShooterAltitude(target_angle);
+
+            /*Set shooter speeds*/
+            motorShooterOne.set(ControlMode.PercentOutput, target_speed);
+            motorShooterTwo.set(ControlMode.PercentOutput,-(target_speed));
+
+        }else{
+            /*Set shooter speeds to 0*/
+            motorShooterOne.set(ControlMode.PercentOutput, 0);
+            motorShooterTwo.set(ControlMode.PercentOutput, 0); 
+
+            /*Set shooter angle*/
+            setShooterAltitude(0);
         }
-
-        /*Lookup shooter angle and speed*/
-        target_angle = ShooterLookup.shooterLookupTable[index][0];
-        target_speed = ShooterLookup.shooterLookupTable[index][1];
-
-        /*Set shooter angle*/
-        setShooterAltitude(target_angle);
-
-        // Set motor output to joystick value
-        motorShooterOne.set(ControlMode.PercentOutput, target_speed);
-        motorShooterTwo.set(ControlMode.PercentOutput,-(target_speed));
+        
+        /*Set Turret output*/
+        if(Math.abs(turret_output) > 0.1){
+            shooterAzimuthMotor.set(-turret_output);
+        }
+        else{
+            shooterAzimuthMotor.set(0);
+        }
+        
+        
 
         SmartDashboard.putNumber("Shooter 1 Speed", canCoderOne.getVelocity());
         SmartDashboard.putNumber("Shooter 2 Speed", canCoderTwo.getVelocity());
@@ -267,7 +296,6 @@ public class Shooter {
         SmartDashboard.putNumber("Voltage", shooterAltitudeMotor.getBusVoltage());
         SmartDashboard.putNumber("Temperature", shooterAltitudeMotor.getMotorTemperature());
         SmartDashboard.putNumber("Output", shooterAltitudeMotor.getAppliedOutput());
-
     }
 
     private double getTargetDistance(){
@@ -300,6 +328,31 @@ public class Shooter {
 
         m_pidAltCntlr.setReference(motor_revs, ControlType.kPosition);
     }
+
+    private void setShooterAzimuth(double angle){
+        double motor_revs; 
+        /**
+         * PIDController objects are commanded to a set point using the 
+         * SetReference() method.
+         * 
+         * The first parameter is the value of the set point, whose units vary
+         * depending on the control type set in the second parameter.
+         * 
+         * The second parameter is the control type can be set to one of four 
+         * parameters:
+         *  com.revrobotics.ControlType.kDutyCycle
+         *  com.revrobotics.ControlType.kPosition
+         *  com.revrobotics.ControlType.kVelocity
+         *  com.revrobotics.ControlType.kVoltage
+         */
+        
+         /*Convert Shooter Angle to motor revolutions*/
+        motor_revs = angle * Constants.kShooterAziMotRevsPerDegree;
+
+        SmartDashboard.putNumber("Azimuth SetPoint", motor_revs);
+
+        m_pidAziCntlr.setReference(motor_revs, ControlType.kPosition);
+    } 
 
     public double getShooterMotor1Speed(){
         //returns degrees/second
