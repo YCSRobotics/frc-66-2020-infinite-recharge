@@ -70,10 +70,9 @@ public class Constants {
     public static final int kSelectButton = 7;
     public static final int kStartButton = 8;
 
-    //drive and fourbar deadzones
+    //deadzones
     public static final double kDeadZone = 0.05;
     public static final double kTriggerDeadZone = 0.1;
-    public static final double kFourBarDeadZone = 0.2;
     
     //gains
     public static final double kGyroGain = 0.02;
