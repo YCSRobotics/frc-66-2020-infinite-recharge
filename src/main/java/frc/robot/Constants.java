@@ -129,11 +129,35 @@ public class Constants {
     public static final double kShooterAziMotRevsPerDegree = 1.03;
     
     //Camera constants
-    public static final double kCameraFoVDeg = 60;
-    public static final double kCamera360pYRes = 360;
-    public static final double kCamera360pXRes = 480;
-    public static final double kCameraXDegPerPixel = kCameraFoVDeg/kCamera360pXRes;
-    public static final double kTargetXSize = 39.25; //inches
-    public static final double kTargetYSize = 17; //inches
+    public static final double kCameraFoVDeg        = 60; //For Logitech C270
+    public static final double kCamera360pYRes      = 360;
+    public static final double kCamera360pXRes      = 480;
+    public static final double kCameraXDegPerPixel  = kCameraFoVDeg/kCamera360pXRes;
+    public static final double kTargetXSize         = 39.25; //inches
+    public static final double kTargetYSize         = 17; //inches
 
+    //Shooter PID gains
+    public static final double kP_alt           = 0.1; 
+    public static final double kI_alt           = 0;
+    public static final double kD_alt           = 0; 
+    public static final double kIz_alt          = 0; 
+    public static final double kFF_alt          = 0; 
+    public static final double kMaxOutput_alt   = .5; 
+    public static final double kMinOutput_alt   =-.5;
+
+    public static final double kP_azi           = 0.1; 
+    public static final double kI_azi           = 0;
+    public static final double kD_azi           = 0; 
+    public static final double kIz_azi          = 0; 
+    public static final double kFF_azi          = 0; 
+    public static final double kMaxOutput_azi   = 1; 
+    public static final double kMinOutput_azi   =-1;
+
+    public static final double kP_shtr          = 0.1; 
+    public static final double kI_shtr          = 0;
+    public static final double kD_shtr          = 0; 
+    public static final double kIz_shtr         = 0; 
+    public static final double kFF_shtr         = 0; 
+    public static final double kMaxOutput_shtr  = 1; 
+    public static final double kMinOutput_shtr  =-1;
 }

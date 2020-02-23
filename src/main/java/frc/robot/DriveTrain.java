@@ -127,11 +127,6 @@ public class DriveTrain {
         } else if (driverController.getRawButton(Constants.kAButton)) {
             goStraight();
 
-        //auto align button based off of ultra sonic
-        } else if ((driverController.getRawButton(Constants.kBButton))) {
-            throttleValue = getThrottleInput();
-            alignUsingInfared();
-
         //auto align button based off of vision, and assuming the target is found
         } else if ((driverController.getRawButton(Constants.kYButton)) && (!isTargetFound) && (!isYawZeroed)) {
             SensorData.resetYaw();
@@ -236,36 +231,6 @@ public class DriveTrain {
 
         }
 
-        //we're within our range of error, align using ultra sonic
-        if (SensorData.distanceToVisionTarget() < Constants.kVisionDistanceLimit) {
-            isFollowingTarget = false;
-            alignUsingInfared();
-
-        } else {
-            //turnValue = -((targetHeading - SensorData.getYaw()) * Constants.kGyroGain); //update heading and use gyro control instead
-            System.out.println("Tracking target");
-            turnValue = -((0 - targetAngleVision) * Constants.kGyroGain);
-        }
-
-    }
-
-    /**
-     * Handles go straight using infared.
-     * Only accurate up to about ~2 feet away
-     */
-    private static void alignUsingInfared() {
-        var leftDistance = SensorData.getLeftIRDistance();
-        var rightDistance = SensorData.getRightIRDistance();
-
-        var error = -(leftDistance - rightDistance);
-
-        SmartDashboard.putNumber("IR Error",  error);
-
-        if (Math.abs(error) < Constants.kInfaredRange) {
-            error = 0.0;
-        }
-
-        turnValue = error * 0.6;
     }
 
     //trims the output, due to math possibly giving us over 1 outputs

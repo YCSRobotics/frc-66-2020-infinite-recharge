@@ -76,74 +76,25 @@ public class Shooter {
         m_encoderAltCntlr = shooterAltitudeMotor.getEncoder();
         m_encoderAziCntlr = shooterAzimuthMotor.getEncoder();
 
-
-         // PID coefficients
-        kP_alt = 0.1; 
-        kI_alt = 0;
-        kD_alt = 0; 
-        kIz_alt = 0; 
-        kFF_alt = 0; 
-        kMaxOutput_alt = .5; 
-        kMinOutput_alt =-.5;
-
-        kP_azi = 0.1; 
-        kI_azi = 0;
-        kD_azi = 0; 
-        kIz_azi = 0; 
-        kFF_azi = 0; 
-        kMaxOutput_azi = 1; 
-        kMinOutput_azi =-1;
-        
-        kP_shtr = 0.1; 
-        kI_shtr = 0;
-        kD_shtr = 0; 
-        kIz_shtr = 0; 
-        kFF_shtr = 0; 
-        kMaxOutput_shtr = 1; 
-        kMinOutput_shtr =-1;
-
         // set PID coefficients
-        m_pidAltCntlr.setP(kP_alt);
-        m_pidAltCntlr.setI(kI_alt);
-        m_pidAltCntlr.setD(kD_alt);
-        m_pidAltCntlr.setIZone(kIz_alt);
-        m_pidAltCntlr.setFF(kFF_alt);
-        m_pidAltCntlr.setOutputRange(kMinOutput_alt, kMaxOutput_alt);
+        m_pidAltCntlr.setP(Constants.kP_alt);
+        m_pidAltCntlr.setI(Constants.kI_alt);
+        m_pidAltCntlr.setD(Constants.kD_alt);
+        m_pidAltCntlr.setIZone(Constants.kIz_alt);
+        m_pidAltCntlr.setFF(Constants.kFF_alt);
+        m_pidAltCntlr.setOutputRange(Constants.kMinOutput_alt, kMaxOutput_alt);
 
-        m_pidAziCntlr.setP(kP_azi);
-        m_pidAziCntlr.setI(kI_azi);
-        m_pidAziCntlr.setD(kD_azi);
-        m_pidAziCntlr.setIZone(kIz_azi);
-        m_pidAziCntlr.setFF(kFF_azi);
-        m_pidAziCntlr.setOutputRange(kMinOutput_azi, kMaxOutput_azi);
+        m_pidAziCntlr.setP(Constants.kP_azi);
+        m_pidAziCntlr.setI(Constants.kI_azi);
+        m_pidAziCntlr.setD(Constants.kD_azi);
+        m_pidAziCntlr.setIZone(Constants.kIz_azi);
+        m_pidAziCntlr.setFF(Constants.kFF_azi);
+        m_pidAziCntlr.setOutputRange(Constants.kMinOutput_azi, kMaxOutput_azi);
 
         // display PID coefficients on SmartDashboard
-        SmartDashboard.putNumber("Altitude P Gain", kP_alt);
-        SmartDashboard.putNumber("Altitude I Gain", kI_alt);
-        SmartDashboard.putNumber("Altitude D Gain", kD_alt);
-        SmartDashboard.putNumber("Altitude I Zone", kIz_alt);
-        SmartDashboard.putNumber("Altitude Feed Forward", kFF_alt);
-        SmartDashboard.putNumber("Altitude Max Output", kMaxOutput_alt);
-        SmartDashboard.putNumber("Altitude Min Output", kMinOutput_alt);
-        SmartDashboard.putNumber("Altitude Set Rotations", 0);
-
-        SmartDashboard.putNumber("Azimuth P Gain", kP_azi);
-        SmartDashboard.putNumber("Azimuth I Gain", kI_azi);
-        SmartDashboard.putNumber("Azimuth D Gain", kD_azi);
-        SmartDashboard.putNumber("Azimuth I Zone", kIz_azi);
-        SmartDashboard.putNumber("Azimuth Feed Forward", kFF_azi);
-        SmartDashboard.putNumber("Azimuth Max Output", kMaxOutput_azi);
-        SmartDashboard.putNumber("Azimuth Min Output", kMinOutput_azi);
-        SmartDashboard.putNumber("Azimuth Set Rotations", 0);
-
-        SmartDashboard.putNumber("Shooter P Gain", kP_shtr);
-        SmartDashboard.putNumber("Shooter I Gain", kI_shtr);
-        SmartDashboard.putNumber("Shooter D Gain", kD_shtr);
-        SmartDashboard.putNumber("Shooter I Zone", kIz_shtr);
-        SmartDashboard.putNumber("Shooter Feed Forward", kFF_shtr);
-        SmartDashboard.putNumber("Shooter Max Output", kMaxOutput_shtr);
-        SmartDashboard.putNumber("Shooter Min Output", kMinOutput_shtr);
-        SmartDashboard.putNumber("Shooter Set Rotations", 0);
+        displayAltPIDValues();
+        displayAziPIDValues();
+        displayShooterPIDValues();
 
         SmartDashboard.putNumber("Shooter 1 Speed",0);
         SmartDashboard.putNumber("Shooter 2 Speed",0);
@@ -181,6 +132,8 @@ public class Shooter {
         SmartDashboard.putNumber("Ramp Rate", shooterAltitudeMotor.getOpenLoopRampRate());
     }
 
+    
+
     /**
      * Periodic method to update shooter
      */
@@ -195,46 +148,11 @@ public class Shooter {
 
         distance = getTargetDistance();
         
-        // read PID coefficients from SmartDashboard
-        double p_alt = SmartDashboard.getNumber("Altitude P Gain", 0);
-        double i_alt = SmartDashboard.getNumber("Altitude I Gain", 0);
-        double d_alt = SmartDashboard.getNumber("Altitude D Gain", 0);
-        double iz_alt = SmartDashboard.getNumber("Altitude I Zone", 0);
-        double ff_alt = SmartDashboard.getNumber("Altitude Feed Forward", 0);
-        double max_alt = SmartDashboard.getNumber("Altitude Max Output", 0);
-        double min_alt = SmartDashboard.getNumber("Altitude Min Output", 0);
-
-        double p_azi = SmartDashboard.getNumber("Azimuth P Gain", 0);
-        double i_azi = SmartDashboard.getNumber("Azimuth I Gain", 0);
-        double d_azi = SmartDashboard.getNumber("Azimuth D Gain", 0);
-        double iz_azi = SmartDashboard.getNumber("Azimuth I Zone", 0);
-        double ff_azi = SmartDashboard.getNumber("Azimuth Feed Forward", 0);
-        double max_azi = SmartDashboard.getNumber("Azimuth Max Output", 0);
-        double min_azi = SmartDashboard.getNumber("Azimuth Min Output", 0);
-    
-
         // if PID coefficients on SmartDashboard have changed, write new values to controller
-        if((p_alt != kP_alt)) { m_pidAltCntlr.setP(p_alt); kP_alt = p_alt; }
-        if((i_alt != kI_alt)) { m_pidAltCntlr.setI(i_alt); kI_alt = i_alt; }
-        if((d_alt != kD_alt)) { m_pidAltCntlr.setD(d_alt); kD_alt = d_alt; }
-        if((iz_alt != kIz_alt)) { m_pidAltCntlr.setIZone(iz_alt); kIz_alt = iz_alt; }
-        if((ff_alt != kFF_alt)) { m_pidAltCntlr.setFF(ff_alt); kFF_alt = ff_alt; }
-        if((max_alt != kMaxOutput_alt) || (min_alt != kMinOutput_alt)) { 
-            m_pidAltCntlr.setOutputRange(min_alt, max_alt); 
-            kMinOutput_alt = min_alt; kMaxOutput_alt = max_alt; 
-        }
-
-        // if PID coefficients on SmartDashboard have changed, write new values to controller
-        if((p_azi != kP_azi)) { m_pidAziCntlr.setP(p_azi); kP_azi = p_azi; }
-        if((i_azi != kI_azi)) { m_pidAziCntlr.setI(i_azi); kI_azi = i_azi; }
-        if((d_azi != kD_azi)) { m_pidAziCntlr.setD(d_azi); kD_azi = d_azi; }
-        if((iz_azi != kIz_azi)) { m_pidAziCntlr.setIZone(iz_azi); kIz_azi = iz_azi; }
-        if((ff_azi != kFF_azi)) { m_pidAziCntlr.setFF(ff_azi); kFF_azi = ff_azi; }
-        if((max_azi != kMaxOutput_azi) || (min_azi != kMinOutput_azi)) { 
-            m_pidAziCntlr.setOutputRange(min_azi, max_azi); 
-            kMinOutput_azi = min_azi; kMaxOutput_azi = max_azi; 
-        }
-
+        updateAltPIDGains();
+        updateAziPIDGains();
+        updateShooterPIDGains();
+        
         if((operatorController.getRawButton(Constants.kYButton))||
            (operatorController.getRawButton(Constants.kAButton))){
             
@@ -298,7 +216,52 @@ public class Shooter {
         SmartDashboard.putNumber("Output", shooterAltitudeMotor.getAppliedOutput());
     }
 
-    private double getTargetDistance(){
+    private void updateShooterPIDGains() {
+    }
+
+    private void updateAziPIDGains() {
+        // read PID coefficients from SmartDashboard
+        double p_azi = SmartDashboard.getNumber("Azimuth P Gain", 0);
+        double i_azi = SmartDashboard.getNumber("Azimuth I Gain", 0);
+        double d_azi = SmartDashboard.getNumber("Azimuth D Gain", 0);
+        double iz_azi = SmartDashboard.getNumber("Azimuth I Zone", 0);
+        double ff_azi = SmartDashboard.getNumber("Azimuth Feed Forward", 0);
+        double max_azi = SmartDashboard.getNumber("Azimuth Max Output", 0);
+        double min_azi = SmartDashboard.getNumber("Azimuth Min Output", 0);
+        
+        if((p_azi != kP_azi)) { m_pidAziCntlr.setP(p_azi); kP_azi = p_azi; }
+        if((i_azi != kI_azi)) { m_pidAziCntlr.setI(i_azi); kI_azi = i_azi; }
+        if((d_azi != kD_azi)) { m_pidAziCntlr.setD(d_azi); kD_azi = d_azi; }
+        if((iz_azi != kIz_azi)) { m_pidAziCntlr.setIZone(iz_azi); kIz_azi = iz_azi; }
+        if((ff_azi != kFF_azi)) { m_pidAziCntlr.setFF(ff_azi); kFF_azi = ff_azi; }
+        if((max_azi != kMaxOutput_azi) || (min_azi != kMinOutput_azi)) { 
+            m_pidAziCntlr.setOutputRange(min_azi, max_azi); 
+            kMinOutput_azi = min_azi; kMaxOutput_azi = max_azi; 
+        }
+    }
+
+    private void updateAltPIDGains() {
+        // read PID coefficients from SmartDashboard
+        double p_alt = SmartDashboard.getNumber("Altitude P Gain", 0);
+        double i_alt = SmartDashboard.getNumber("Altitude I Gain", 0);
+        double d_alt = SmartDashboard.getNumber("Altitude D Gain", 0);
+        double iz_alt = SmartDashboard.getNumber("Altitude I Zone", 0);
+        double ff_alt = SmartDashboard.getNumber("Altitude Feed Forward", 0);
+        double max_alt = SmartDashboard.getNumber("Altitude Max Output", 0);
+        double min_alt = SmartDashboard.getNumber("Altitude Min Output", 0);
+
+        if((p_alt != kP_alt)) { m_pidAltCntlr.setP(p_alt); kP_alt = p_alt; }
+        if((i_alt != kI_alt)) { m_pidAltCntlr.setI(i_alt); kI_alt = i_alt; }
+        if((d_alt != kD_alt)) { m_pidAltCntlr.setD(d_alt); kD_alt = d_alt; }
+        if((iz_alt != kIz_alt)) { m_pidAltCntlr.setIZone(iz_alt); kIz_alt = iz_alt; }
+        if((ff_alt != kFF_alt)) { m_pidAltCntlr.setFF(ff_alt); kFF_alt = ff_alt; }
+        if((max_alt != kMaxOutput_alt) || (min_alt != kMinOutput_alt)) { 
+            m_pidAltCntlr.setOutputRange(min_alt, max_alt); 
+            kMinOutput_alt = min_alt; kMaxOutput_alt = max_alt; 
+        }
+    }
+
+    private double getTargetDistance() {
         double distance;
         distance = SmartDashboard.getNumber("Target Distance", 0);
         return(distance);
@@ -357,6 +320,39 @@ public class Shooter {
     public double getShooterMotor1Speed(){
         //returns degrees/second
         return(canCoderOne.getVelocity());
+    }
+
+    private void displayShooterPIDValues() {
+        SmartDashboard.putNumber("Shooter P Gain", kP_shtr);
+        SmartDashboard.putNumber("Shooter I Gain", kI_shtr);
+        SmartDashboard.putNumber("Shooter D Gain", kD_shtr);
+        SmartDashboard.putNumber("Shooter I Zone", kIz_shtr);
+        SmartDashboard.putNumber("Shooter Feed Forward", kFF_shtr);
+        SmartDashboard.putNumber("Shooter Max Output", kMaxOutput_shtr);
+        SmartDashboard.putNumber("Shooter Min Output", kMinOutput_shtr);
+        SmartDashboard.putNumber("Shooter Set Rotations", 0);
+    }
+
+    private void displayAziPIDValues() {
+        SmartDashboard.putNumber("Azimuth P Gain", kP_azi);
+        SmartDashboard.putNumber("Azimuth I Gain", kI_azi);
+        SmartDashboard.putNumber("Azimuth D Gain", kD_azi);
+        SmartDashboard.putNumber("Azimuth I Zone", kIz_azi);
+        SmartDashboard.putNumber("Azimuth Feed Forward", kFF_azi);
+        SmartDashboard.putNumber("Azimuth Max Output", kMaxOutput_azi);
+        SmartDashboard.putNumber("Azimuth Min Output", kMinOutput_azi);
+        SmartDashboard.putNumber("Azimuth Set Rotations", 0);
+    }
+
+    private void displayAltPIDValues() {
+        SmartDashboard.putNumber("Altitude P Gain", kP_alt);
+        SmartDashboard.putNumber("Altitude I Gain", kI_alt);
+        SmartDashboard.putNumber("Altitude D Gain", kD_alt);
+        SmartDashboard.putNumber("Altitude I Zone", kIz_alt);
+        SmartDashboard.putNumber("Altitude Feed Forward", kFF_alt);
+        SmartDashboard.putNumber("Altitude Max Output", kMaxOutput_alt);
+        SmartDashboard.putNumber("Altitude Min Output", kMinOutput_alt);
+        SmartDashboard.putNumber("Altitude Set Rotations", 0);
     }
 
 }

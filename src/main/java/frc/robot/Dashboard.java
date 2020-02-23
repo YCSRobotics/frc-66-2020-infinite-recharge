@@ -155,11 +155,5 @@ public class Dashboard {
         tapeDetected.setBoolean(SensorData.tapeDetected());
         tapeDistance.setNumber(SensorData.distanceToVisionTarget());
         tapeYaw.setNumber(SensorData.angleToVisionTarget());
-
-        leftUltraDistance.setNumber(SensorData.getLeftIRDistance());
-        rightUltraDistance.setNumber(SensorData.getRightIRDistance());
-
-       
-
-    }
+  }
 }
