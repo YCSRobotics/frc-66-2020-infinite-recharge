@@ -55,6 +55,11 @@ public class Shooter {
 
     private Joystick operatorController = new Joystick(Constants.kOperatorController);
 
+    private boolean isY_Pressed         = false;
+    private boolean isCloseShotEnabled  = false;
+    private boolean isA_Pressed         = false;
+    private boolean isAutoTargetEnabled = false;
+
     public Shooter() {
         // Configure Neo 550
         /**
@@ -92,9 +97,12 @@ public class Shooter {
         m_pidAziCntlr.setOutputRange(Constants.kMinOutput_azi, kMaxOutput_azi);
 
         // display PID coefficients on SmartDashboard
-        displayAltPIDValues();
-        displayAziPIDValues();
-        displayShooterPIDValues();
+        //displayAltPIDValues();
+        //displayAziPIDValues();
+        //displayShooterPIDValues();
+
+        SmartDashboard.putNumber("Altitude Set Point", 0);
+        SmartDashboard.putNumber("Altitude Position", 0);
 
         SmartDashboard.putNumber("Shooter 1 Speed",0);
         SmartDashboard.putNumber("Shooter 2 Speed",0);
@@ -149,19 +157,38 @@ public class Shooter {
         distance = getTargetDistance();
         
         // if PID coefficients on SmartDashboard have changed, write new values to controller
-        updateAltPIDGains();
-        updateAziPIDGains();
-        updateShooterPIDGains();
+        //updateAltPIDGains();
+        //updateAziPIDGains();
+        //updateShooterPIDGains();
+
+        if((operatorController.getRawButton(Constants.kYButton)) && (!isY_Pressed)){
+            //Rising Y edge - Toggle "Close Shot"
+            isY_Pressed = true;
+            isA_Pressed = false;
+            //isCloseShotEnabled = !isCloseShotEnabled;
+            //isAutoTargetEnabled = false;
+            setShooterAltitude(-30);
+        }else if((operatorController.getRawButton(Constants.kAButton)) && (!isA_Pressed)){
+            //Rising A edge - Toggle "Auto Target"
+            isY_Pressed = false;
+            isA_Pressed = true;
+            //isCloseShotEnabled = false;
+            //isAutoTargetEnabled = !isAutoTargetEnabled;
+        }else if ((!operatorController.getRawButton(Constants.kYButton)) && 
+                  (!operatorController.getRawButton(Constants.kAButton))){
+            isY_Pressed = false;
+            isA_Pressed = false;
+            setShooterAltitude(-1);
+        }else{}
         
-        if((operatorController.getRawButton(Constants.kYButton))||
-           (operatorController.getRawButton(Constants.kAButton))){
-            
-            if(operatorController.getRawButton(Constants.kYButton)){
-                //Front of goal shot
+        if((isCloseShotEnabled)||(isAutoTargetEnabled)){
+            //First check front of goal shot  
+            if(isCloseShotEnabled){
                 index = 0;
-            } else {
-            /*Target shot - Determine lookup table index*/
-                if(distance <= 5){
+            }else{
+            /*A button pressed - Target shot - Determine lookup table index*/
+
+                if((distance > 0) && (distance <= 5)){
                     index = 1;
                 } else if ((distance > 5 ) && (distance <= 10)){
                     index = 2;
@@ -193,7 +220,7 @@ public class Shooter {
             motorShooterTwo.set(ControlMode.PercentOutput, 0); 
 
             /*Set shooter angle*/
-            setShooterAltitude(0);
+            //setShooterAltitude(0);
         }
         
         /*Set Turret output*/
@@ -204,10 +231,11 @@ public class Shooter {
             shooterAzimuthMotor.set(0);
         }
         
-        
-
+        SmartDashboard.putBoolean("Close Shot Enabled", isCloseShotEnabled);
+        SmartDashboard.putBoolean("Auto Target Enabled", isAutoTargetEnabled);
         SmartDashboard.putNumber("Shooter 1 Speed", canCoderOne.getVelocity());
         SmartDashboard.putNumber("Shooter 2 Speed", canCoderTwo.getVelocity());
+        SmartDashboard.putNumber("Altitude Position", m_encoderAltCntlr.getPosition());
 
         // periodically read voltage, temperature, and applied output and publish to
         // SmartDashboard
@@ -287,7 +315,7 @@ public class Shooter {
          /*Convert Shooter Angle to motor revolutions*/
         motor_revs = angle * Constants.kShooterAltMotRevsPerDegree;
 
-        SmartDashboard.putNumber("Altitude SetPoint", motor_revs);
+        SmartDashboard.putNumber("Altitude Set Point", motor_revs);
 
         m_pidAltCntlr.setReference(motor_revs, ControlType.kPosition);
     }
