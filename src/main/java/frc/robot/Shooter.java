@@ -279,7 +279,7 @@ public class Shooter {
         }
         
         /*Set Turret output*/
-        if(Math.abs(turret_output) > 0.1){
+        if(Math.abs(turret_output) > 0.2){
             shooterAzimuthMotor.set(-turret_output);
         }
         else{

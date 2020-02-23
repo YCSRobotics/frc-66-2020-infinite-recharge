@@ -22,6 +22,8 @@ public class Intake {
     private final static TalonSRX indexStage1Motor = new TalonSRX(Constants.kMotorIndexStage1Port);
     private final static TalonSRX indexStage2Motor = new TalonSRX(Constants.kMotorIndexStage2Port);
 
+    private final static Solenoid intakeSolenoid = new Solenoid(2);
+
     private Joystick operatorController = DriveTrain.operatorController;
 
     private static boolean manualControl = true;
@@ -45,9 +47,11 @@ public class Intake {
         if(Math.abs(intakeStage1) >= Constants.kTriggerDeadZone){
             indexStage1Motor.set(ControlMode.PercentOutput, -1);
             intakeMotor.set(ControlMode.PercentOutput, -.75);
+            intakeSolenoid.set(true);
         } else{
             indexStage1Motor.set(ControlMode.PercentOutput, 0);
             intakeMotor.set(ControlMode.PercentOutput, 0);
+            //intakeSolenoid.set(false);
         }
 
         if(Math.abs(intakeStage2) >= Constants.kTriggerDeadZone){

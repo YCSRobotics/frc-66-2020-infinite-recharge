@@ -22,9 +22,6 @@ import edu.wpi.first.wpilibj.SPI;
 public class SensorData {
     private static AHRS navSensor = new AHRS(SPI.Port.kMXP, (byte) 100);
 
-    private static AnalogInput leftUltraSensor = new AnalogInput(Constants.kLeftUltraSensor);
-    private static AnalogInput rightUltraSensor = new AnalogInput(Constants.kRightUltraSensor);
-
     private static DigitalInput bannerSensor = new DigitalInput(2);
 
     private static NetworkTableInstance instance = NetworkTableInstance.getDefault();
@@ -92,22 +89,6 @@ public class SensorData {
      */
     public static boolean tapeDetected() { 
         return table.getEntry("tapeDetected").getBoolean(false); 
-    }
-
-    /**
-     * Get left infared distance in volts
-     * @return double volts
-     */
-    public static double getLeftIRDistance() {
-        return leftUltraSensor.getVoltage();
-    }
-
-    /**
-     * Get right infared distance in volts
-     * @return double voltss
-     */
-    public static double getRightIRDistance() {
-        return rightUltraSensor.getVoltage();
     }
 }
 

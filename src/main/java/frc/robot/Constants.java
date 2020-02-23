@@ -50,9 +50,6 @@ public class Constants {
     public static final double kEncoderDelta = 1;
     public static final int kEncoderFaultThreshold = 25; // .5/.02 = 25
 
-    public static final int kLeftUltraSensor = 0;
-    public static final int kRightUltraSensor = 1;
-
     //joystick constants
     public final static int kDriverController = 0;
     public final static int kOperatorController = 1;
@@ -77,35 +74,13 @@ public class Constants {
     public static final double kDeadZone = 0.05;
     public static final double kTriggerDeadZone = 0.1;
     public static final double kFourBarDeadZone = 0.2;
-
+    
     //gains
     public static final double kGyroGain = 0.02;
 
     //solenoids
     public static final int kShifterSolenoid = 0;
-    public static final int kGearIntakeSolenoid = 1;
-    public static final int kClimberSolenoid = 2;
-    public static final double kIntakeSlowMaxSpeed = 0.1;
-
-    //elevator
-    public static final double kElevatorDriveFinesseLimit = 20000;
-    public static final double kElevatorDriveMaxSpeed = 0.5;
-    public static final double kElevatorOpenRamp = 0.3;
-    public static final double kElevatorClosedRamp = 0.1;
-    public static final int kElevatorPos1 = 50;
-    public static final int kElevatorPos2 = 14000;
-    public static final int kElevatorPos3 = 10000;
-    public static final int kElevatorPosOffset = 50;
-
-    //fourbar
-    public static final double kFourBarRamp = 0.3;
-    public static final double kFourBarMaxForward = 0.6;
-    public static final double kFourBarMaxReverse = -0.49;
-
-    public static final int kFourBarPos1 = 150;
-    public static final int kFourBarPos2 = 275;
-    public static final int kFourBarPos3 = 1380;
-    public static final int kFourBarPosOffset = 50;
+    public static final int kIntakeSolenoid  = 1;
 
     //drivetrain
     public static final double kSkimGain = 0.15;
@@ -152,5 +127,14 @@ public class Constants {
 
     //Shooter constants
     public static final double kShooterAltMotRevsPerDegree = .504;   
-    public static final double kShooterAziMotRevsPerDegree = 1.03;    
+    public static final double kShooterAziMotRevsPerDegree = 1.03;
+    
+    //Camera constants
+    public static final double kCameraFoVDeg = 60;
+    public static final double kCamera360pYRes = 360;
+    public static final double kCamera360pXRes = 480;
+    public static final double kCameraXDegPerPixel = kCameraFoVDeg/kCamera360pXRes;
+    public static final double kTargetXSize = 39.25; //inches
+    public static final double kTargetYSize = 17; //inches
+
 }
