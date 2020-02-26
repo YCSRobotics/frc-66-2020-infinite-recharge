@@ -12,8 +12,8 @@ package frc.robot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix.motorcontrol.*;
+import com.ctre.phoenix.motorcontrol.can.*;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.revrobotics.CANError;
 import com.revrobotics.CANSparkMax;
@@ -87,14 +87,51 @@ public class Shooter {
         m_pidAltCntlr.setD(Constants.kD_alt);
         m_pidAltCntlr.setIZone(Constants.kIz_alt);
         m_pidAltCntlr.setFF(Constants.kFF_alt);
-        m_pidAltCntlr.setOutputRange(Constants.kMinOutput_alt, kMaxOutput_alt);
+        m_pidAltCntlr.setOutputRange(Constants.kMinOutput_alt, Constants.kMaxOutput_alt);
 
         m_pidAziCntlr.setP(Constants.kP_azi);
         m_pidAziCntlr.setI(Constants.kI_azi);
         m_pidAziCntlr.setD(Constants.kD_azi);
         m_pidAziCntlr.setIZone(Constants.kIz_azi);
         m_pidAziCntlr.setFF(Constants.kFF_azi);
-        m_pidAziCntlr.setOutputRange(Constants.kMinOutput_azi, kMaxOutput_azi);
+        m_pidAziCntlr.setOutputRange(Constants.kMinOutput_azi, Constants.kMaxOutput_azi);
+
+        //Setup Shooter PIDs
+        //Shooter Motor One
+        motorShooterOne.configRemoteFeedbackFilter(canCoderOne, Constants.kRemoteSensor0);
+        motorShooterOne.configSelectedFeedbackSensor(FeedbackDevice.RemoteSensor0, 
+                                                     Constants.kPIDLoopIdx, 
+                                                     Constants.kTimeoutMs);
+        //Set Sensor Phase
+        motorShooterOne.setSensorPhase(Constants.kShooterOneInverted);
+        //Config peak and nominal outputs
+        motorShooterOne.configNominalOutputForward(0, Constants.kTimeoutMs);
+        motorShooterOne.configNominalOutputReverse(0, Constants.kTimeoutMs);
+        motorShooterOne.configPeakOutputForward(1);
+        motorShooterOne.configPeakOutputReverse(-1);
+        //Config Velocity closed loop gains
+        motorShooterOne.config_kP(Constants.kPIDLoopIdx, Constants.kP_shtr);
+        motorShooterOne.config_kI(Constants.kPIDLoopIdx, Constants.kI_shtr);
+        motorShooterOne.config_kD(Constants.kPIDLoopIdx, Constants.kD_shtr);
+        motorShooterOne.config_kF(Constants.kPIDLoopIdx, Constants.kFF_shtr);
+
+        //Shooter Motor Two
+        motorShooterTwo.configRemoteFeedbackFilter(canCoderTwo, Constants.kRemoteSensor0);
+        motorShooterTwo.configSelectedFeedbackSensor(FeedbackDevice.RemoteSensor0, 
+                                                     Constants.kPIDLoopIdx, 
+                                                     Constants.kTimeoutMs);
+        //Set Sensor Phase
+        motorShooterTwo.setSensorPhase(Constants.kShooterTwoInverted);
+        //Config peak and nominal outputs
+        motorShooterTwo.configNominalOutputForward(0, Constants.kTimeoutMs);
+        motorShooterTwo.configNominalOutputReverse(0, Constants.kTimeoutMs);
+        motorShooterTwo.configPeakOutputForward(1);
+        motorShooterTwo.configPeakOutputReverse(-1);
+        //Config Velocity closed loop gains
+        motorShooterTwo.config_kP(Constants.kPIDLoopIdx, Constants.kP_shtr);
+        motorShooterTwo.config_kI(Constants.kPIDLoopIdx, Constants.kI_shtr);
+        motorShooterTwo.config_kD(Constants.kPIDLoopIdx, Constants.kD_shtr);
+        motorShooterTwo.config_kF(Constants.kPIDLoopIdx, Constants.kFF_shtr);
 
         // display PID coefficients on SmartDashboard
         //displayAltPIDValues();
@@ -108,6 +145,7 @@ public class Shooter {
         SmartDashboard.putNumber("Shooter 2 Speed",0);
 
         SmartDashboard.putNumber("Target Distance", 0);
+        SmartDashboard.putNumber("Target Yaw", 0);
 
         /**
          * Parameters can be set by calling the appropriate Set method on the
@@ -145,16 +183,16 @@ public class Shooter {
     /**
      * Periodic method to update shooter
      */
-    public void updateShooter() {
-        double distance;
+    public void updateShooter() { 
         int index;
+
+        double targetVelocity_unitsPerMs;
 
         double turret_output = operatorController.getRawAxis(Constants.kLeftXAxis);
 
         double target_angle;
         double target_speed;
-
-        distance = getTargetDistance();
+        double target_FFGain;
         
         // if PID coefficients on SmartDashboard have changed, write new values to controller
         //updateAltPIDGains();
@@ -165,30 +203,30 @@ public class Shooter {
             //Rising Y edge - Toggle "Close Shot"
             isY_Pressed = true;
             isA_Pressed = false;
-            //isCloseShotEnabled = !isCloseShotEnabled;
-            //isAutoTargetEnabled = false;
-            setShooterAltitude(-30);
+            isCloseShotEnabled = !isCloseShotEnabled;
+            isAutoTargetEnabled = false;
         }else if((operatorController.getRawButton(Constants.kAButton)) && (!isA_Pressed)){
             //Rising A edge - Toggle "Auto Target"
             isY_Pressed = false;
             isA_Pressed = true;
-            //isCloseShotEnabled = false;
-            //isAutoTargetEnabled = !isAutoTargetEnabled;
+            isCloseShotEnabled = false;
+            isAutoTargetEnabled = !isAutoTargetEnabled;
         }else if ((!operatorController.getRawButton(Constants.kYButton)) && 
                   (!operatorController.getRawButton(Constants.kAButton))){
             isY_Pressed = false;
             isA_Pressed = false;
-            setShooterAltitude(-1);
         }else{}
         
         if((isCloseShotEnabled)||(isAutoTargetEnabled)){
             //First check front of goal shot  
             if(isCloseShotEnabled){
-                index = 0;
+                index = 7;
             }else{
             /*A button pressed - Target shot - Determine lookup table index*/
 
-                if((distance > 0) && (distance <= 5)){
+            index = 1;
+
+            /*if((distance > 0) && (distance <= 5)){
                     index = 1;
                 } else if ((distance > 5 ) && (distance <= 10)){
                     index = 2;
@@ -200,27 +238,43 @@ public class Shooter {
                     index = 5;
                 } else {
                     index = 6;
-                }
+                }*/
             }
 
             /*Lookup shooter angle and speed*/
-            target_angle = ShooterLookup.shooterLookupTable[index][0];
-            target_speed = ShooterLookup.shooterLookupTable[index][1];
+            target_angle = ShooterLookup.shooterLookupTable[index][0][0];
+            target_speed = ShooterLookup.shooterLookupTable[index][0][1];
+            target_FFGain = ShooterLookup.shooterLookupTable[index][0][2];
 
             /*Set shooter angle*/
             setShooterAltitude(target_angle);
 
             /*Set shooter speeds*/
-            motorShooterOne.set(ControlMode.PercentOutput, target_speed);
-            motorShooterTwo.set(ControlMode.PercentOutput,-(target_speed));
+            /**
+             * Convert target RPM to encoder units/100ms
+             * target * 4096/600
+             */
+
+            targetVelocity_unitsPerMs = target_speed * 5700 * 4096/600;  
+            //motorShooterOne.set(ControlMode.PercentOutput, target_speed);
+            //motorShooterTwo.set(ControlMode.PercentOutput,-(target_speed));
+            motorShooterOne.config_kF(Constants.kPIDLoopIdx, target_FFGain);
+            motorShooterTwo.config_kF(Constants.kPIDLoopIdx, target_FFGain);
+            motorShooterOne.set(ControlMode.Velocity, targetVelocity_unitsPerMs);
+            motorShooterTwo.set(ControlMode.Velocity, -(targetVelocity_unitsPerMs));
+            
 
         }else{
             /*Set shooter speeds to 0*/
+            targetVelocity_unitsPerMs = 0.0;
+            target_angle = 0;
+            target_FFGain = Constants.kFF_shtr;
+
             motorShooterOne.set(ControlMode.PercentOutput, 0);
             motorShooterTwo.set(ControlMode.PercentOutput, 0); 
 
             /*Set shooter angle*/
-            //setShooterAltitude(0);
+            setShooterAltitude(0);
         }
         
         /*Set Turret output*/
@@ -233,9 +287,17 @@ public class Shooter {
         
         SmartDashboard.putBoolean("Close Shot Enabled", isCloseShotEnabled);
         SmartDashboard.putBoolean("Auto Target Enabled", isAutoTargetEnabled);
-        SmartDashboard.putNumber("Shooter 1 Speed", canCoderOne.getVelocity());
-        SmartDashboard.putNumber("Shooter 2 Speed", canCoderTwo.getVelocity());
+        SmartDashboard.putNumber("Target Velocity", targetVelocity_unitsPerMs);
+        SmartDashboard.putNumber("Shooter 1 Speed - Talon", motorShooterOne.getSelectedSensorVelocity());
+        SmartDashboard.putNumber("Shooter 2 Speed - Talon ", motorShooterTwo.getSelectedSensorVelocity());
+        
+        SmartDashboard.putNumber("Altitude Target", target_angle);
+        SmartDashboard.putNumber("FF Target", target_FFGain);
+
         SmartDashboard.putNumber("Altitude Position", m_encoderAltCntlr.getPosition());
+
+        SmartDashboard.putNumber("Shooter 1 Output", motorShooterOne.getMotorOutputPercent());
+        SmartDashboard.putNumber("Shooter 2 Output", motorShooterTwo.getMotorOutputPercent());
 
         // periodically read voltage, temperature, and applied output and publish to
         // SmartDashboard
@@ -290,9 +352,11 @@ public class Shooter {
     }
 
     private double getTargetDistance() {
-        double distance;
-        distance = SmartDashboard.getNumber("Target Distance", 0);
-        return(distance);
+        return(SmartDashboard.getNumber("Target Distance", 0));
+    }
+
+    private double getTargetYaw() {
+        return(SmartDashboard.getNumber("Target Yaw", 0));
     }
 
     private void setShooterAltitude(double angle){
@@ -312,7 +376,7 @@ public class Shooter {
          *  com.revrobotics.ControlType.kVoltage
          */
         
-         /*Convert Shooter Angle to motor revolutions*/
+        /*Convert Shooter Angle to motor revolutions*/
         motor_revs = angle * Constants.kShooterAltMotRevsPerDegree;
 
         SmartDashboard.putNumber("Altitude Set Point", motor_revs);

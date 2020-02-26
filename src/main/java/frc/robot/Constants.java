@@ -153,11 +153,18 @@ public class Constants {
     public static final double kMaxOutput_azi   = 1; 
     public static final double kMinOutput_azi   =-1;
 
-    public static final double kP_shtr          = 0.1; 
+    public static final double kP_shtr          = 0.15; 
     public static final double kI_shtr          = 0;
-    public static final double kD_shtr          = 0; 
+    public static final double kD_shtr          = 4.5; 
     public static final double kIz_shtr         = 0; 
-    public static final double kFF_shtr         = 0; 
+    public static final double kFF_shtr         = 0.0263; 
     public static final double kMaxOutput_shtr  = 1; 
     public static final double kMinOutput_shtr  =-1;
+    
+    public static final int kPIDLoopIdx      = 0;
+    public static final int kTimeoutMs       = 30;
+    public static final int kRemoteSensor0   = 0;
+    public static final boolean kShooterOneInverted = true;
+    public static final boolean kShooterTwoInverted = true;
+
 }
