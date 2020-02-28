@@ -101,6 +101,7 @@ public class Robot extends TimedRobot {
   //called every 20ms during teleop
   @Override
   public void teleopPeriodic() {
+    camera.updateCamera();
     driveTrain.updateDrivetrain();
     shooter.updateShooter();
     intake.updateIntake();

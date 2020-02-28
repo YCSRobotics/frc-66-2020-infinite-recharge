@@ -13,6 +13,7 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * Handles camera interactions
@@ -28,21 +29,20 @@ public class Camera {
 
     public boolean targetValid;
 
-    public Camera() {
-        //get the default instance of NetworkTables
-        NetworkTableInstance table = NetworkTableInstance.getDefault();
+    NetworkTableInstance table = NetworkTableInstance.getDefault();
 
-        NetworkTable cameraTable = table.getTable("chameleon-vision").getSubTable("MyCamName");
-
-        isValid = cameraTable.getEntry("isValid");
-        yaw = cameraTable.getEntry("yaw");
-        targetBoundingWidth = cameraTable.getEntry("targetBoundingWidth");
-        targetBoundingHeight = cameraTable.getEntry("targetBoundingHeight");
+    public Camera() {       
     }
 
     public void updateCamera(){
+        NetworkTable cameraTable = table.getTable("chameleon-vision").getSubTable("TestCam");
+        isValid = cameraTable.getEntry("isValid");
+        yaw = cameraTable.getEntry("yaw");
+        targetBoundingWidth = cameraTable.getEntry("targetBoundingWidth");
+        targetBoundingHeight = cameraTable.getEntry("targetBoundingHeight"); 
         
         calculateTargetDistance();
+        SmartDashboard.putNumber("Yaw", yaw.getDouble(0.0));
     }
 
     private void calculateTargetDistance(){
@@ -74,15 +74,17 @@ public class Camera {
             //get the apparent width of the target (in pixels) and divide by 2
             base_pixels = targetBoundingWidth.getDouble(0.0)/2;
             //calculate apparent width of base in degrees by multiplying image by Field of View/image pixels
-            base_degrees = base_pixels*Constants.kCameraXDegPerPixel;
+            base_degrees = Math.toRadians(base_pixels*Constants.kCameraXDegPerPixel);
             //actual width of vision target is known, so calculate distance by using tangent function
 
+            SmartDashboard.putNumber("base degrees", base_degrees);
             targetDistance = (Constants.kTargetXSize/2)/Math.tan(base_degrees);
         }
         else{    
             //Invalid image data
             targetDistance = -1;
         }
+        SmartDashboard.putNumber("calculated distance", targetDistance);
     }
 
     public double getTargetDistance(){

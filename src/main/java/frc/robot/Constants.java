@@ -130,8 +130,8 @@ public class Constants {
     
     //Camera constants
     public static final double kCameraFoVDeg        = 60; //For Logitech C270
-    public static final double kCamera360pYRes      = 360;
-    public static final double kCamera360pXRes      = 480;
+    public static final double kCamera360pYRes      = 240;
+    public static final double kCamera360pXRes      = 320;
     public static final double kCameraXDegPerPixel  = kCameraFoVDeg/kCamera360pXRes;
     public static final double kTargetXSize         = 39.25; //inches
     public static final double kTargetYSize         = 17; //inches
