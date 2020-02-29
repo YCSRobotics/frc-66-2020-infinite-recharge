@@ -220,7 +220,8 @@ public class Shooter {
         if((isCloseShotEnabled)||(isAutoTargetEnabled)){
             //First check front of goal shot  
             if(isCloseShotEnabled){
-                index = 7;
+                //Index 0 of the lookup table is reserved for the "close shot"
+                index = 0;
             }else{
             /*A button pressed - Target shot - Determine lookup table index*/
 
@@ -279,10 +280,12 @@ public class Shooter {
         
         /*Set Turret output*/
         if(Math.abs(turret_output) > 0.2){
-            shooterAzimuthMotor.set(-turret_output);
+            m_pidAziCntlr.setReference(-turret_output, ControlType.kDutyCycle);
+            //shooterAzimuthMotor.set(-turret_output);
         }
         else{
-            shooterAzimuthMotor.set(0);
+            m_pidAziCntlr.setReference(0, ControlType.kDutyCycle);
+            //shooterAzimuthMotor.set(0);
         }
         
         SmartDashboard.putBoolean("Close Shot Enabled", isCloseShotEnabled);

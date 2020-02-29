@@ -96,6 +96,7 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {
     DriveTrain.autonomousActive = false;
+    camera.initCamera();
   }
 
   //called every 20ms during teleop

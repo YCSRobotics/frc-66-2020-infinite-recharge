@@ -30,6 +30,9 @@ public class Constants {
     public static final int kMotorShooterAltitude =     1;
     public static final int kMotorShooterAzimuth  =     2;
 
+    //PWM
+    public static final int kServoCameraTilt = 0;
+
     //CANCoders
     public static final int kCANCoderOne = 0;
     public static final int kCANCoderTwo = 1;
@@ -135,6 +138,9 @@ public class Constants {
     public static final double kCameraXDegPerPixel  = kCameraFoVDeg/kCamera360pXRes;
     public static final double kTargetXSize         = 39.25; //inches
     public static final double kTargetYSize         = 17; //inches
+
+    public static final double kCameraHomeAngle     = 120;
+    public static final double kCameraPitchDeadZone = 10;
 
     //Shooter PID gains
     public static final double kP_alt           = 0.1; 

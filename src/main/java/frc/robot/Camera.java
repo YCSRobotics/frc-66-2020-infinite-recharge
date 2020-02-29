@@ -13,6 +13,7 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
@@ -22,22 +23,32 @@ public class Camera {
     public NetworkTableEntry isValid;
     public NetworkTableEntry targetBoundingWidth, targetBoundingHeight;
     public NetworkTableEntry yaw;
+    public NetworkTableEntry pitch;
     public NetworkTableEntry isDriverMode;
 
-    public double targetDistance = -1;
-    public double targetYaw = 0;
-
+    private Servo cameraTilt = new Servo(Constants.kServoCameraTilt);
     public boolean targetValid;
+        
+    double targetDistance = -1;
+    double targetYaw = 45;
 
-    NetworkTableInstance table = NetworkTableInstance.getDefault();
+    public Camera() {
+        
+    }
 
-    public Camera() {       
+    public void initCamera(){
+        cameraTilt.setAngle(Constants.kCameraHomeAngle);
     }
 
     public void updateCamera(){
+        NetworkTableInstance table = NetworkTableInstance.getDefault();
+
         NetworkTable cameraTable = table.getTable("chameleon-vision").getSubTable("TestCam");
+    
+        //Update Target info
         isValid = cameraTable.getEntry("isValid");
-        yaw = cameraTable.getEntry("yaw");
+        yaw = cameraTable.getEntry("targetYaw");
+        pitch = cameraTable.getEntry("targetPitch");
         targetBoundingWidth = cameraTable.getEntry("targetBoundingWidth");
         targetBoundingHeight = cameraTable.getEntry("targetBoundingHeight"); 
         
@@ -48,6 +59,7 @@ public class Camera {
     private void calculateTargetDistance(){
         double base_pixels;
         double base_degrees;
+        double camera_angle;
 
         /********************************************
          *   Calculate distance d to the target
@@ -71,6 +83,9 @@ public class Camera {
          ********************************************/
 
         if(isValid.getBoolean(true)){
+
+            //cameraTilt.setAngle(tilt_angle);
+
             //get the apparent width of the target (in pixels) and divide by 2
             base_pixels = targetBoundingWidth.getDouble(0.0)/2;
             //calculate apparent width of base in degrees by multiplying image by Field of View/image pixels
@@ -79,9 +94,16 @@ public class Camera {
 
             SmartDashboard.putNumber("base degrees", base_degrees);
             targetDistance = (Constants.kTargetXSize/2)/Math.tan(base_degrees);
+
+            if (Math.abs(pitch.getDouble(0.0)) >= Constants.kCameraPitchDeadZone){
+                camera_angle = Constants.kCameraHomeAngle - pitch.getDouble(0.0);
+                cameraTilt.setAngle(camera_angle);
+            }
+            else{}
         }
         else{    
             //Invalid image data
+            cameraTilt.setAngle(Constants.kCameraHomeAngle);
             targetDistance = -1;
         }
         SmartDashboard.putNumber("calculated distance", targetDistance);
