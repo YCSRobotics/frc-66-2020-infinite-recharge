@@ -29,8 +29,9 @@ public class Camera {
     private Servo cameraTilt = new Servo(Constants.kServoCameraTilt);
     public boolean targetValid;
         
-    double targetDistance = -1;
-    double targetYaw = 45;
+    static double targetDistance = -1;
+    static double targetYaw = 45;
+    static boolean isImageValid = false;
 
     public Camera() {
         
@@ -47,6 +48,7 @@ public class Camera {
     
         //Update Target info
         isValid = cameraTable.getEntry("isValid");
+        isImageValid = isValid.getBoolean(false);
         yaw = cameraTable.getEntry("targetYaw");
         pitch = cameraTable.getEntry("targetPitch");
         targetBoundingWidth = cameraTable.getEntry("targetBoundingWidth");
@@ -94,8 +96,9 @@ public class Camera {
 
             SmartDashboard.putNumber("base degrees", base_degrees);
             targetDistance = (Constants.kTargetXSize/2)/Math.tan(base_degrees);
+            targetYaw = yaw.getDouble(0.0);
 
-            if (Math.abs(pitch.getDouble(0.0)) >= Constants.kCameraPitchDeadZone){
+            if (Math.abs(pitch.getDouble(0.0)) >= 8){
                 camera_angle = Constants.kCameraHomeAngle - pitch.getDouble(0.0);
                 cameraTilt.setAngle(camera_angle);
             }
@@ -109,16 +112,16 @@ public class Camera {
         SmartDashboard.putNumber("calculated distance", targetDistance);
     }
 
-    public double getTargetDistance(){
-        return(targetDistance);
+    public static double getTargetDistance(){
+        return(targetDistance/12);
     }
 
-    public double getTargetYaw(){
+    public static double getTargetYaw(){
         return(targetYaw);
     }
 
-    public boolean isTargetValid(){
-        return(targetValid);
+    public static boolean isTargetValid(){
+        return(isImageValid);
     }
 
 }

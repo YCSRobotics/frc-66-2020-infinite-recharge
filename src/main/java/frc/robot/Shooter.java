@@ -53,12 +53,19 @@ public class Shooter {
     private static TalonSRX motorShooterOne = new TalonSRX(Constants.kMotorShooter1Port);
     private static TalonSRX motorShooterTwo = new TalonSRX(Constants.kMotorShooter2Port);
 
+    //private Camera camera = new Camera();
+
     private Joystick operatorController = new Joystick(Constants.kOperatorController);
 
     private boolean isY_Pressed         = false;
     private boolean isCloseShotEnabled  = false;
     private boolean isA_Pressed         = false;
     private boolean isAutoTargetEnabled = false;
+
+    double target_turret_angle;
+    double current_turret_angle;
+    double target_distance;
+    double camera_yaw;
 
     public Shooter() {
         // Configure Neo 550
@@ -193,7 +200,10 @@ public class Shooter {
         double target_angle;
         double target_speed;
         double target_FFGain;
-        
+
+        current_turret_angle = m_encoderAziCntlr.getPosition()/Constants.kShooterAziMotRevsPerDegree;
+
+
         // if PID coefficients on SmartDashboard have changed, write new values to controller
         //updateAltPIDGains();
         //updateAziPIDGains();
@@ -211,12 +221,21 @@ public class Shooter {
             isA_Pressed = true;
             isCloseShotEnabled = false;
             isAutoTargetEnabled = !isAutoTargetEnabled;
+            
+            //Set turret target
+            if(Camera.isTargetValid()){
+                target_turret_angle = current_turret_angle - Camera.getTargetYaw();
+            }else{
+                target_turret_angle = current_turret_angle;
+            }
+          
         }else if ((!operatorController.getRawButton(Constants.kYButton)) && 
                   (!operatorController.getRawButton(Constants.kAButton))){
             isY_Pressed = false;
             isA_Pressed = false;
         }else{}
         
+        //Check for Close Shot or Auto Target Enabled
         if((isCloseShotEnabled)||(isAutoTargetEnabled)){
             //First check front of goal shot  
             if(isCloseShotEnabled){
@@ -224,22 +243,21 @@ public class Shooter {
                 index = 0;
             }else{
             /*A button pressed - Target shot - Determine lookup table index*/
-
-            index = 1;
-
-            /*if((distance > 0) && (distance <= 5)){
+            target_distance = Camera.getTargetDistance();
+    
+            if((target_distance > 0) && (target_distance <= 5)){
                     index = 1;
-                } else if ((distance > 5 ) && (distance <= 10)){
+                } else if ((target_distance > 5 ) && (target_distance <= 10)){
                     index = 2;
-                } else if ((distance > 10 ) && (distance <= 15)){
+                } else if ((target_distance > 10 ) && (target_distance <= 15)){
                     index = 3;
-                } else if ((distance > 15 ) && (distance <= 20)){
+                } else if ((target_distance > 15 ) && (target_distance <= 20)){
                     index = 4;
-                } else if ((distance > 20 ) && (distance <= 25)){
+                } else if ((target_distance > 20 ) && (target_distance <= 25)){
                     index = 5;
                 } else {
                     index = 6;
-                }*/
+                }
             }
 
             /*Lookup shooter angle and speed*/
@@ -249,7 +267,8 @@ public class Shooter {
 
             /*Set shooter angle*/
             setShooterAltitude(target_angle);
-
+            setShooterAzimuth(target_turret_angle);
+            
             /*Set shooter speeds*/
             /**
              * Convert target RPM to encoder units/100ms
@@ -266,6 +285,7 @@ public class Shooter {
             
 
         }else{
+            //Neither shoot condition is enabled
             /*Set shooter speeds to 0*/
             targetVelocity_unitsPerMs = 0.0;
             target_angle = 0;
@@ -276,18 +296,24 @@ public class Shooter {
 
             /*Set shooter angle*/
             setShooterAltitude(0);
+
+            /*Set Turret output*/
+            if(Math.abs(turret_output) > 0.2){
+                m_pidAziCntlr.setReference(-turret_output, ControlType.kDutyCycle);
+                //shooterAzimuthMotor.set(-turret_output);
+            }
+            else{
+                m_pidAziCntlr.setReference(0, ControlType.kDutyCycle);
+                //shooterAzimuthMotor.set(0);
+            }
+            
         }
         
-        /*Set Turret output*/
-        if(Math.abs(turret_output) > 0.2){
-            m_pidAziCntlr.setReference(-turret_output, ControlType.kDutyCycle);
-            //shooterAzimuthMotor.set(-turret_output);
-        }
-        else{
-            m_pidAziCntlr.setReference(0, ControlType.kDutyCycle);
-            //shooterAzimuthMotor.set(0);
-        }
-        
+        SmartDashboard.putNumber("Current Turret Angle", current_turret_angle);
+        SmartDashboard.putNumber("Target Turret Angle", target_turret_angle);
+        SmartDashboard.putNumber("Camera Angle", camera_yaw);
+        SmartDashboard.putNumber("Target Distance", target_distance);
+
         SmartDashboard.putBoolean("Close Shot Enabled", isCloseShotEnabled);
         SmartDashboard.putBoolean("Auto Target Enabled", isAutoTargetEnabled);
         SmartDashboard.putNumber("Target Velocity", targetVelocity_unitsPerMs);
@@ -410,6 +436,7 @@ public class Shooter {
         SmartDashboard.putNumber("Azimuth SetPoint", motor_revs);
 
         m_pidAziCntlr.setReference(motor_revs, ControlType.kPosition);
+    
     } 
 
     public double getShooterMotor1Speed(){
