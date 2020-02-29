@@ -75,6 +75,7 @@ public class Constants {
 
     //deadzones
     public static final double kDeadZone = 0.05;
+    public static final double kTurretDeadZone = 0.2;
     public static final double kTriggerDeadZone = 0.1;
     
     //gains

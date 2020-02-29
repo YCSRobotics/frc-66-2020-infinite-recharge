@@ -26,7 +26,7 @@ public class Camera {
     public NetworkTableEntry pitch;
     public NetworkTableEntry isDriverMode;
 
-    private Servo cameraTilt = new Servo(Constants.kServoCameraTilt);
+    private static Servo cameraTilt = new Servo(Constants.kServoCameraTilt);
     public boolean targetValid;
         
     static double targetDistance = -1;
@@ -38,7 +38,8 @@ public class Camera {
     }
 
     public void initCamera(){
-        cameraTilt.setAngle(Constants.kCameraHomeAngle);
+        setCameraTilt(Constants.kCameraHomeAngle);
+        //cameraTilt.setAngle(Constants.kCameraHomeAngle);
     }
 
     public void updateCamera(){
@@ -100,16 +101,23 @@ public class Camera {
 
             if (Math.abs(pitch.getDouble(0.0)) >= 8){
                 camera_angle = Constants.kCameraHomeAngle - pitch.getDouble(0.0);
-                cameraTilt.setAngle(camera_angle);
+                setCameraTilt(camera_angle);
+                //cameraTilt.setAngle(camera_angle);
+                SmartDashboard.putNumber("Camera Tilt", camera_angle);
             }
             else{}
         }
         else{    
             //Invalid image data
-            cameraTilt.setAngle(Constants.kCameraHomeAngle);
+            setCameraTilt(Constants.kCameraHomeAngle);
+            //cameraTilt.setAngle(Constants.kCameraHomeAngle);
             targetDistance = -1;
         }
         SmartDashboard.putNumber("calculated distance", targetDistance);
+    }
+
+    public static void setCameraTilt(double tilt_angle){
+        cameraTilt.setAngle(tilt_angle);
     }
 
     public static double getTargetDistance(){

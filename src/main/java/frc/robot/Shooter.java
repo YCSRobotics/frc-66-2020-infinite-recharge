@@ -61,6 +61,7 @@ public class Shooter {
     private boolean isCloseShotEnabled  = false;
     private boolean isA_Pressed         = false;
     private boolean isAutoTargetEnabled = false;
+    private boolean isAutoTurretEnabled = false;
 
     double target_turret_angle;
     double current_turret_angle;
@@ -215,12 +216,14 @@ public class Shooter {
             isA_Pressed = false;
             isCloseShotEnabled = !isCloseShotEnabled;
             isAutoTargetEnabled = false;
+            isAutoTurretEnabled = false;
         }else if((operatorController.getRawButton(Constants.kAButton)) && (!isA_Pressed)){
             //Rising A edge - Toggle "Auto Target"
             isY_Pressed = false;
             isA_Pressed = true;
             isCloseShotEnabled = false;
             isAutoTargetEnabled = !isAutoTargetEnabled;
+            isAutoTurretEnabled = isAutoTargetEnabled;
             
             //Set turret target
             if(Camera.isTargetValid()){
@@ -228,6 +231,8 @@ public class Shooter {
             }else{
                 target_turret_angle = current_turret_angle;
             }
+
+            setShooterAzimuth(target_turret_angle);
           
         }else if ((!operatorController.getRawButton(Constants.kYButton)) && 
                   (!operatorController.getRawButton(Constants.kAButton))){
@@ -267,7 +272,13 @@ public class Shooter {
 
             /*Set shooter angle*/
             setShooterAltitude(target_angle);
-            setShooterAzimuth(target_turret_angle);
+
+            if(Math.abs(turret_output) >= Constants.kTurretDeadZone){
+                m_pidAziCntlr.setReference(-turret_output, ControlType.kDutyCycle);
+                isAutoTurretEnabled = false;
+            }else if(!isAutoTurretEnabled){
+                m_pidAziCntlr.setReference(0.0, ControlType.kDutyCycle);
+            }else{}
             
             /*Set shooter speeds*/
             /**
@@ -316,6 +327,7 @@ public class Shooter {
 
         SmartDashboard.putBoolean("Close Shot Enabled", isCloseShotEnabled);
         SmartDashboard.putBoolean("Auto Target Enabled", isAutoTargetEnabled);
+        SmartDashboard.putBoolean("Auto Turret Enabled", isAutoTurretEnabled);
         SmartDashboard.putNumber("Target Velocity", targetVelocity_unitsPerMs);
         SmartDashboard.putNumber("Shooter 1 Speed - Talon", motorShooterOne.getSelectedSensorVelocity());
         SmartDashboard.putNumber("Shooter 2 Speed - Talon ", motorShooterTwo.getSelectedSensorVelocity());
