@@ -9,10 +9,6 @@ public class AutoRoutine {
 
     //Autonomous Routines
     final static int DO_NOTHING           = 0;
-    final static int CENTER_LEFT          = 1;
-    final static int CENTER_RIGHT         = 2;
-    final static int LEFT_ROCKET          = 3;
-    final static int RIGHT_ROCKET         = 4;
 
     //Autonomous States
     final static int START                        = 0;
@@ -82,21 +78,6 @@ public class AutoRoutine {
     //called at the beginning of every autonomous method
     private void stateActionStart(){
         if(selectedAutonRoutine != DO_NOTHING){
-            //if center, move distance and set state to move distance
-            if((selectedAutonRoutine == CENTER_LEFT) || (selectedAutonRoutine == CENTER_RIGHT)) {
-                DriveTrain.setMoveDistance(Constants.kCenterGoStraightInitDistance, Constants.kCenterGoStraightInitPower);
-                currentAutonState = MOVE_DISTANCE;
-            
-            //if rocket, move rocket distance
-            } else if ((selectedAutonRoutine==LEFT_ROCKET) || (selectedAutonRoutine == RIGHT_ROCKET)) {
-                DriveTrain.setMoveDistance(Constants.kRocketInitDistance, Constants.kRocketInitPower);
-                currentAutonState = MOVE_DISTANCE;
-
-            } else {
-                //should never get here as this would mean we didn't account for a selected autonomous
-                currentAutonState = STOP;
-            }
-
         //go straight to stop if the selected auton routine was do nothing
         } else{
             currentAutonState = STOP;
@@ -107,29 +88,6 @@ public class AutoRoutine {
     private void stateActionInitMoveDistance(){
         //wait for the robot to finish moving, and then go to the next state
         if(!DriveTrain.isMovingDistance()) {
-            //if center selected, move forward off of vision if target detected, else just stop
-            if((selectedAutonRoutine == CENTER_LEFT) || (selectedAutonRoutine == CENTER_RIGHT)) {
-                if (SensorData.tapeDetected()) {
-                    DriveTrain.moveToVisionTarget(Constants.kVisionPower);
-                    currentAutonState = MOVE_VISION_TARGET;
-
-                } else {
-                    currentAutonState = STOP;
-
-                }
-
-            //if rocket selected, begin to turn
-            } else if (selectedAutonRoutine == RIGHT_ROCKET) {
-                DriveTrain.setTurnToTarget(Constants.kRocketTurnPower, Constants.kRocketTurnAngle);
-                currentAutonState = TURN_RIGHT;
-
-            } else if(selectedAutonRoutine == LEFT_ROCKET) {
-                DriveTrain.setTurnToTarget(-Constants.kRocketTurnPower, Constants.kRocketTurnAngle);
-                currentAutonState = TURN_LEFT;
-
-            } else {
-                currentAutonState = STOP;
-            }
 
         } else{
             //Wait for move to complete
@@ -141,14 +99,6 @@ public class AutoRoutine {
     private void stateActionInitRocketTurn() {
         //when finished turning, continue to next state
         if(!DriveTrain.isTurning()) {
-            if (selectedAutonRoutine == LEFT_ROCKET || selectedAutonRoutine == RIGHT_ROCKET) {
-                DriveTrain.setMoveDistance(Constants.kRocketSecondDistance, Constants.kRocketSecondPower);
-                currentAutonState = MOVE_DISTANCE_ROCKET;
-
-            } else {
-                currentAutonState = STOP;
-
-            }
 
         } else {
             //wait for turn to complete
@@ -194,31 +144,7 @@ public class AutoRoutine {
     }
 
     private void stateActionMoveVisionTarget() {
-        //if center selected, and no longer following target, stop
-        if (selectedAutonRoutine == CENTER_LEFT || selectedAutonRoutine == CENTER_RIGHT) {
-            if (!DriveTrain.isFollowingTarget()) {
-                currentAutonState = STOP;
-            }
-
-        //if rocket selected, and no longer following target, move forward ramming distance
-        } else if (selectedAutonRoutine == LEFT_ROCKET || selectedAutonRoutine == RIGHT_ROCKET) {
-            if (!DriveTrain.isFollowingTarget()) {
-                if (isWithinTargetRange) {
-                    //ram that BOI
-                    DriveTrain.setMoveDistance(Constants.kRammingDistance, Constants.kRammingPower);
-                    currentAutonState = MOVE_DISTANCE_TARGET;
-
-                } else {
-                    //not within range, lost target, stop
-                    currentAutonState = STOP;
-
-                }
-
-            } else {
-                //Waiting to finish trackingTarget
-
-            }
-        }
+        
     }
 
     //after turn, move forward a little bit to straighten the robot out
@@ -234,30 +160,6 @@ public class AutoRoutine {
 
     //once we wait a small amount of time, continue
     private void stateAutoTurnDelay() {
-        if(timer.get() >= alarmTime) {
-            //if rocket and target found, track using vision, otherwise use dead reckoning state
-            if((selectedAutonRoutine == LEFT_ROCKET) || (selectedAutonRoutine == RIGHT_ROCKET)){
-                if (SensorData.tapeDetected()) {
-                    DriveTrain.moveToVisionTarget(Constants.kVisionPower);
-                    currentAutonState = MOVE_VISION_TARGET;
-
-                } else {
-                    System.out.println("Using deadreckoning rocket distance");
-                    DriveTrain.setMoveDistance(Constants.kRocketDeadReckoningDistance, Constants.kRocketDeadReckoningPower);
-                    currentAutonState = MOVE_DISTANCE_TARGET;
-
-                }
-
-            } else{
-                //Should never get here, but if we do Stop
-                currentAutonState = STOP;
-
-            }
-
-        } else{
-            //Wait for timer to expire
-        }
-
     }
 
     private void stateActionStop(){

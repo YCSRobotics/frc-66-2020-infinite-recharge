@@ -38,13 +38,13 @@ public class DriveTrain {
 
     public static boolean autonomousActive = false;
 
-    private static boolean invertMode = false;
+    private static boolean invertMode = true;
 
     //driver states
     private static boolean isYawZeroed = false;
     private static boolean isMovingDistance = false;
     private static boolean isTurning = false;
-    private static boolean isFollowingTarget = false;
+    private static boolean isMoveToOffset = false;
 
     public static double throttleValue;
     public static double turnValue;
@@ -54,13 +54,6 @@ public class DriveTrain {
 
     private static double leftOutput;
     private static double rightOutput;
-
-    //autonomous specific
-    private static double cancellationPeriod = 0.0;
-    private static boolean isTargetFound = false;
-    private static boolean visionCancellation = false;
-
-    private static boolean override = false;
 
     public DriveTrain(){
         //set robot invert state
@@ -100,11 +93,11 @@ public class DriveTrain {
 
         SmartDashboard.putNumber("turnValue", turnValue);
 
-        if (override) {
+        /*if (override) {
             calculateMotorOutputs(throttleValue, turnValue);
             setMotorOutput(leftOutput, rightOutput);
             return;
-        }
+        }*/
 
         //activate our shifting gearboxes
         if (shiftState) {
@@ -113,31 +106,31 @@ public class DriveTrain {
             setSpeedyMode(false);
         }
 
-        //autonomousActive is an 'ABSOLUTE' override, this prevents auto code from "leaking" into teleop
-        if (((isMovingDistance) || (isTurning) || (isFollowingTarget)) && autonomousActive) {
-            driveAutonomous();
-
-        //if go straight button is pressed and yaw is not zero, then zero
-        } else if ((driverController.getRawButton(Constants.kAButton)) && (!isYawZeroed)) {
-            //wait one loop to zero to prevent garbage
-            SensorData.resetYaw();
-            isYawZeroed = true;
-
-        //if go straight button pressed, go straight
-        } else if (driverController.getRawButton(Constants.kAButton)) {
-            goStraight();
-
-        //auto align button based off of vision, and assuming the target is found
-        } else if ((driverController.getRawButton(Constants.kYButton)) && (!isTargetFound) && (!isYawZeroed)) {
-            SensorData.resetYaw();
-            isYawZeroed = true;
-
-        //no target found, acts as a go straight
-        } else if ((driverController.getRawButton(Constants.kYButton)) && (!isTargetFound)) {
-            goStraight();
+        //A-button pressed, drive straight
+        if (driverController.getRawButton(Constants.kAButton)){
+            if(!isYawZeroed){
+                //Zero gyro to prevent garbage
+                SensorData.resetYaw();
+                isYawZeroed = true;
+            } else{
+                //A-button still pressed
+                goStraight();
+            }
+        //Y-button pressed, auto move to set offset (from wall)
+        } else if (driverController.getRawButton(Constants.kYButton)) {
+            if(!isMoveToOffset){
+                isMoveToOffset = true;
+                setMoveDistance(Constants.kTargetZoneOffset, Constants.kTargetZoneSpeed);
+                moveDistance();
+            }else{
+                moveDistance();
+            }
 
         //no hybrid-autonomous modes selected, normal drivetrain controls
         } else {
+            isMovingDistance = false;
+            isMoveToOffset = false;
+
             throttleValue = getThrottleInput();//Scaled Throttle Input
             turnValue = getTurnInput();//Scaled Turn Input
 
@@ -149,9 +142,8 @@ public class DriveTrain {
             //set this to zero if not using it, to rezero at beginning of hybrid-auto loop
             isYawZeroed = false;
 
-            //update isTargetFound only once, prevents garbage and handles our vision fallbacks
-            isTargetFound = SensorData.tapeDetected();
-
+            isMoveToOffset = false;
+            isMovingDistance = false;
         }
 
         //calculates left and right outputs
@@ -177,60 +169,14 @@ public class DriveTrain {
 
         }
 
+        SmartDashboard.putBoolean("isMovingDistance", isMovingDistance);
+        SmartDashboard.putNumber("Target Move Distance", targetDistance);
+        SmartDashboard.putNumber("getLeftDistance", getLeftWheelDistance());
+        SmartDashboard.putNumber("getRightDistance", getRightWheelDistance());
+
+
         //raw set motor output function
         setMotorOutput(leftOutput, rightOutput);
-    }
-
-    public static void setOverride(boolean state) {
-        override = state;
-    }
-
-    /**
-     * Handles go straight via vision target, has default parameters for autonomous control.
-     * Has a cancellation period for autonomous, where if it loses the target it has a "safety" period.
-     */
-    private static void alignUsingVision() {
-        if (autonomousActive) {
-            throttleValue = Constants.kVisionPower;
-        } else {
-            throttleValue = getThrottleInput() * 0.4;
-        }
-
-        enableDrivetrainDynamicBraking(false);
-
-        var targetAngleVision = SensorData.angleToVisionTarget();
-
-        double targetHeading = SensorData.angleToVisionTarget();
-
-        //cancellation timer is active, then activate and wait
-        if (visionCancellation) {
-            if (timer.get() > cancellationPeriod + 0.5) {
-                AutoRoutine.isWithinTargetRange = false;
-                isFollowingTarget = false;
-
-            } else if (SensorData.tapeDetected()) {
-                visionCancellation = false;
-
-            } else {
-                return;
-
-            }
-        }
-
-        //if tape is not detected, activate go straight if in hybrid-auto, activate cancellation timer in full-auto
-        if (!SensorData.tapeDetected()) {
-            //stop running autonomous, lost target
-            //lost target go straight in manual control
-            isTargetFound = false;
-
-            cancellationPeriod = timer.get();
-
-            visionCancellation = true;
-
-            return;
-
-        }
-
     }
 
     //trims the output, due to math possibly giving us over 1 outputs
@@ -256,18 +202,15 @@ public class DriveTrain {
      */
     public static double getThrottleInput() {
         double forwardValue = driverController.getRawAxis(Constants.kLeftYAxis);
-        boolean speedyMode = driverController.getRawAxis(Constants.kLeftTrigger) > 0;
+        boolean finesseMode = driverController.getRawAxis(Constants.kLeftTrigger) > 0;
 
         if (Math.abs(forwardValue) < Constants.kDeadZone) {
             return 0;
         }
 
-     if(!speedyMode) {
+     if(finesseMode) {
             forwardValue = forwardValue * Constants.kDriveSpeed;
-
-        } else {
-            //
-        }
+        } else {}
 
         return (Math.abs(forwardValue) > Constants.kDeadZone ? -forwardValue : 0.0);
     }
@@ -330,7 +273,6 @@ public class DriveTrain {
         leftMaster.setSelectedSensorPosition(0, 0, 0);
         rightMaster.setSelectedSensorPosition(0, 0, 0);
 
-
         targetDistance = distance;
 
         enableDrivetrainDynamicBraking(true);
@@ -343,17 +285,6 @@ public class DriveTrain {
             isMovingDistance = false;
             throttleValue = 0.0;
         }
-    }
-    
-    //set drivetrain variables to begin following via vision
-    public static void moveToVisionTarget(double throttle) {
-        enableDrivetrainDynamicBraking(true);
-
-        throttleValue = throttle;
-
-        isFollowingTarget = true;
-        AutoRoutine.isWithinTargetRange = false;
-
     }
 
     /**
@@ -368,7 +299,7 @@ public class DriveTrain {
     }
     
     //handles movement of robot during autonomous
-    public static void driveAutonomous(){
+    public static void moveDistance(){
         double distance_error;
         
         //if moving forward
@@ -405,9 +336,6 @@ public class DriveTrain {
             } else {
                 //Do Nothing while turning
             }
-
-        } else if (isFollowingTarget) {
-            alignUsingVision();
 
 		} else {
 			//No Auton move in progress
@@ -497,13 +425,5 @@ public class DriveTrain {
     public static boolean isTurning(){
         return(isTurning);
     }
-
-    /**
-     * Is the robot following the vision target?
-     * @return true if following, false if not
-     */
-    public static boolean isFollowingTarget() {
-        return (isFollowingTarget);
-    }    
 
 }

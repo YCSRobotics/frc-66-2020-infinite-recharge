@@ -62,19 +62,6 @@ public class Robot extends TimedRobot {
     DriveTrain.autonomousActive = true;
 
     switch(m_autonSelected){
-      case kCenterFrontBayRight:
-        autonomous.setSelectedAutonRoutine(AutoRoutine.CENTER_RIGHT);
-        break;
-      case kCenterFrontBayLeft:
-        autonomous.setSelectedAutonRoutine(AutoRoutine.CENTER_LEFT);
-        break;
-      case kLftRocketLvl1:
-        autonomous.setSelectedAutonRoutine(AutoRoutine.LEFT_ROCKET);
-        break;
-      case kRgtRocketLvl1:
-        autonomous.setSelectedAutonRoutine(AutoRoutine.RIGHT_ROCKET);
-        break;
-      case kDefaultAuto:
       default:
               autonomous.setSelectedAutonRoutine(AutoRoutine.DO_NOTHING);
       break;

@@ -90,6 +90,8 @@ public class Constants {
     public static final double kDriveSpeed = 0.5;
     public static final double kTurnGain = 0.6;
     public static final double kTurnFinesseGain = 0.5;
+    public static final double kTargetZoneOffset = 20; //distance (in inches) to back away from wall
+    public static final double kTargetZoneSpeed = 0.5; //Speed to back away from wall in target zone
 
     public static final double kVisionGain = 0.7;
     public static final double kTurnVisionGain = 0.6;
