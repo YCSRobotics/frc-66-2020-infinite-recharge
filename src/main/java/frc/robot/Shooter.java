@@ -224,16 +224,19 @@ public class Shooter {
             isCloseShotEnabled = false;
             isAutoTargetEnabled = !isAutoTargetEnabled;
             isAutoTurretEnabled = isAutoTargetEnabled;
-            
+
             //Set turret target
             if(Camera.isTargetValid()){
                 target_turret_angle = current_turret_angle - Camera.getTargetYaw();
             }else{
-                target_turret_angle = current_turret_angle;
+                 target_turret_angle = current_turret_angle;
             }
+            
+            //Get distance to target
+            target_distance = Camera.getTargetDistance();
 
             setShooterAzimuth(target_turret_angle);
-          
+
         }else if ((!operatorController.getRawButton(Constants.kYButton)) && 
                   (!operatorController.getRawButton(Constants.kAButton))){
             isY_Pressed = false;
@@ -246,22 +249,28 @@ public class Shooter {
             if(isCloseShotEnabled){
                 //Index 0 of the lookup table is reserved for the "close shot"
                 index = 0;
+                Camera.setCameraTilt(Constants.kCameraHomeAngle-30);
             }else{
-            /*A button pressed - Target shot - Determine lookup table index*/
-            target_distance = Camera.getTargetDistance();
-    
-            if((target_distance > 0) && (target_distance <= 5)){
+                /*A button pressed - Target shot - Determine lookup table index*/
+
+                Camera.setCameraTilt(Constants.kCameraHomeAngle);
+
+                if((target_distance > 5) && (target_distance <= 10)){
                     index = 1;
-                } else if ((target_distance > 5 ) && (target_distance <= 10)){
+                } else if ((target_distance > 10) && (target_distance <= 12)){
                     index = 2;
-                } else if ((target_distance > 10 ) && (target_distance <= 15)){
+                } else if ((target_distance > 12 ) && (target_distance <= 14)){
                     index = 3;
-                } else if ((target_distance > 15 ) && (target_distance <= 20)){
+                } else if ((target_distance > 14 ) && (target_distance <= 16)){
                     index = 4;
-                } else if ((target_distance > 20 ) && (target_distance <= 25)){
+                } else if ((target_distance > 16 ) && (target_distance <= 18)){
                     index = 5;
-                } else {
+                } else if ((target_distance > 18 ) && (target_distance <= 20)){
                     index = 6;
+                } else if ((target_distance > 20 ) && (target_distance <= 22)){
+                    index = 7;
+                }else {
+                    index = 8;
                 }
             }
 
@@ -298,6 +307,8 @@ public class Shooter {
         }else{
             //Neither shoot condition is enabled
             /*Set shooter speeds to 0*/
+            Camera.setCameraTilt(Constants.kCameraHomeAngle);
+
             targetVelocity_unitsPerMs = 0.0;
             target_angle = 0;
             target_FFGain = Constants.kFF_shtr;
@@ -390,14 +401,6 @@ public class Shooter {
             m_pidAltCntlr.setOutputRange(min_alt, max_alt); 
             kMinOutput_alt = min_alt; kMaxOutput_alt = max_alt; 
         }
-    }
-
-    private double getTargetDistance() {
-        return(SmartDashboard.getNumber("Target Distance", 0));
-    }
-
-    private double getTargetYaw() {
-        return(SmartDashboard.getNumber("Target Yaw", 0));
     }
 
     private void setShooterAltitude(double angle){

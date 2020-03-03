@@ -148,10 +148,7 @@ public class Dashboard {
 
         leftMotorPosition.setNumber(DriveTrain.getLeftWheelPosition());
         rightMotorPosition.setNumber(DriveTrain.getRightWheelPosition());
-
-        crossBoxSensor.setBoolean(SensorData.getBallSensorState());
       
-
         tapeDetected.setBoolean(SensorData.tapeDetected());
         tapeDistance.setNumber(SensorData.distanceToVisionTarget());
         tapeYaw.setNumber(SensorData.angleToVisionTarget());

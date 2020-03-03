@@ -90,7 +90,7 @@ public class Constants {
     public static final double kDriveSpeed = 0.5;
     public static final double kTurnGain = 0.6;
     public static final double kTurnFinesseGain = 0.5;
-    public static final double kTargetZoneOffset = 20; //distance (in inches) to back away from wall
+    public static final double kTargetZoneOffset = 25; //distance (in inches) to back away from wall
     public static final double kTargetZoneSpeed = 0.5; //Speed to back away from wall in target zone
 
     public static final double kVisionGain = 0.7;
@@ -98,6 +98,13 @@ public class Constants {
     public static final double kVisionOffset = 10;
 
     public static final int kVisionDistanceLimit = 70;
+
+    //intake/indexer
+    public static final double kIntakeOnSpeed = -0.75;
+    public static final double kIndexStage1OnSpeed = -0.30;
+
+    public static final double kIndexStep1Offset = -3072;
+    public static final double kIndexStep3Offset = 3072;
 
     //autonomous constants
     public static final int kCenterGoStraightInitDistance = 140;

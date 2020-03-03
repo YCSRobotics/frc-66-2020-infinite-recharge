@@ -22,8 +22,6 @@ import edu.wpi.first.wpilibj.SPI;
 public class SensorData {
     private static AHRS navSensor = new AHRS(SPI.Port.kMXP, (byte) 100);
 
-    private static DigitalInput bannerSensor = new DigitalInput(2);
-
     private static NetworkTableInstance instance = NetworkTableInstance.getDefault();
     private static NetworkTable table = instance.getTable("ChickenVision");
 
@@ -51,14 +49,6 @@ public class SensorData {
      */
     public static double getRoll() {
         return navSensor.getRoll();
-    }
-
-    /**
-     * Grabs the state of the ball sensor
-     * @return true/false
-     */
-    public static boolean getBallSensorState() { 
-        return bannerSensor.get(); 
     }
 
     /**

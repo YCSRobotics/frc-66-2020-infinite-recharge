@@ -84,6 +84,7 @@ public class Robot extends TimedRobot {
   public void teleopInit() {
     DriveTrain.autonomousActive = false;
     camera.initCamera();
+    intake.initIntake();
   }
 
   //called every 20ms during teleop

@@ -99,17 +99,17 @@ public class Camera {
             targetDistance = (Constants.kTargetXSize/2)/Math.tan(base_degrees);
             targetYaw = yaw.getDouble(0.0);
 
-            if (Math.abs(pitch.getDouble(0.0)) >= 8){
+            /*if (Math.abs(pitch.getDouble(0.0)) >= 8){
                 camera_angle = Constants.kCameraHomeAngle - pitch.getDouble(0.0);
                 setCameraTilt(camera_angle);
                 //cameraTilt.setAngle(camera_angle);
                 SmartDashboard.putNumber("Camera Tilt", camera_angle);
             }
-            else{}
+            else{}*/
         }
         else{    
             //Invalid image data
-            setCameraTilt(Constants.kCameraHomeAngle);
+            //setCameraTilt(Constants.kCameraHomeAngle);
             //cameraTilt.setAngle(Constants.kCameraHomeAngle);
             targetDistance = -1;
         }
