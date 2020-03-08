@@ -12,11 +12,10 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 
 public class Robot extends TimedRobot {
-  private static final String kDefaultAuto = "Default - Manual";
-  private static final String kCenterFrontBayRight = "Center - Ship Right";
-  private static final String kCenterFrontBayLeft = "Center - Ship Left";
-  private static final String kRgtRocketLvl1 = "Right Rocket Level 1";
-  private static final String kLftRocketLvl1 = "Left Rocket Level 1";
+  private static final String kDefaultAuto = "Default - None";
+  private static final String kMoveOnly = "Move Only";
+  private static final String kShootAutoLine = "Auto Line Shoot";
+  private static final String kKesselRun = "Kessel Run";
   
   private AutoRoutine autonomous = new AutoRoutine();
   private DriveTrain driveTrain = new DriveTrain();
@@ -36,11 +35,10 @@ public class Robot extends TimedRobot {
   //called on robot boot
   @Override
   public void robotInit() {
-    m_chooser.setDefaultOption("Default - Manual", kDefaultAuto);
-    m_chooser.addOption("Center - Ship Right", kCenterFrontBayRight);
-    m_chooser.addOption("Center - Ship Left", kCenterFrontBayLeft);
-    m_chooser.addOption("Left Rocket Lvl 1", kLftRocketLvl1);
-    m_chooser.addOption("Right Rocket Lvl 1", kRgtRocketLvl1);
+    m_chooser.setDefaultOption("Default - None", kDefaultAuto);
+    m_chooser.addOption("Move Only", kMoveOnly);
+    m_chooser.addOption("Auto Line Shoot", kShootAutoLine);
+    m_chooser.addOption("Kessel Run", kKesselRun);
 
     Dashboard.driverDisplayTab.add(m_chooser).withSize(2,1).withPosition(0,0);
   }
@@ -55,6 +53,9 @@ public class Robot extends TimedRobot {
   //called at the beginning of auton
   @Override
   public void autonomousInit() {
+    camera.initCamera();
+    autonomous.initAutoRoutine();
+
     m_autonSelected = m_chooser.getSelected();
 
     System.out.println("Auto selected: " + m_autonSelected);
@@ -62,8 +63,19 @@ public class Robot extends TimedRobot {
     DriveTrain.autonomousActive = true;
 
     switch(m_autonSelected){
+
+      case kMoveOnly:
+        autonomous.setSelectedAutonRoutine(AutoRoutine.MOVE_ONLY);
+        break;
+      case kShootAutoLine:
+        autonomous.setSelectedAutonRoutine(AutoRoutine.AUTO_LINE_SHOOT);
+        break;
+      case kKesselRun:
+        autonomous.setSelectedAutonRoutine(AutoRoutine.KESSEL_RUN);
+        break;
+      case kDefaultAuto:
       default:
-              autonomous.setSelectedAutonRoutine(AutoRoutine.DO_NOTHING);
+        autonomous.setSelectedAutonRoutine(AutoRoutine.DO_NOTHING);
       break;
     }
 
@@ -72,12 +84,10 @@ public class Robot extends TimedRobot {
   //called every 20ms during auton, after auto init
   @Override
   public void autonomousPeriodic() {
-    //autonomous.updateAutoRoutine();
-    //driveTrain.updateDrivetrain();
-    //fourBarControl.updateFourBar();
-    //elevatorControl.updateLift();
-    //intake.updateIntake();
-
+    autonomous.updateAutoRoutine();
+    camera.updateCamera();
+    driveTrain.updateDrivetrainAuto();
+    shooter.updateShooter();
   }
 
   @Override
@@ -94,13 +104,6 @@ public class Robot extends TimedRobot {
     driveTrain.updateDrivetrain();
     shooter.updateShooter();
     intake.updateIntake();
-
-    
-    //fourBarControl.updateFourBar();
-    //elevatorControl.updateLift();
-    //intake.updateIntake();
-    //climber.updateClimber();
-
   }
 
   //called every 20ms during test mode

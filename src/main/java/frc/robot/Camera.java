@@ -14,6 +14,7 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Servo;
+import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
@@ -26,6 +27,7 @@ public class Camera {
     public NetworkTableEntry pitch;
     public NetworkTableEntry isDriverMode;
 
+    private static Solenoid cameraLED = new Solenoid(7);
     private static Servo cameraTilt = new Servo(Constants.kServoCameraTilt);
     public boolean targetValid;
         
@@ -39,6 +41,8 @@ public class Camera {
 
     public void initCamera(){
         setCameraTilt(Constants.kCameraHomeAngle);
+        cameraLED.set(true);
+        
         //cameraTilt.setAngle(Constants.kCameraHomeAngle);
     }
 

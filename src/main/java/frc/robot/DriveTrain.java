@@ -84,6 +84,15 @@ public class DriveTrain {
         timer.start();
     }
 
+    public void updateDrivetrainAuto(){
+        SmartDashboard.putBoolean("Is Moving Distance", isMovingDistance);
+        SmartDashboard.putNumber("Target Auto Move Distance", targetDistance);
+        SmartDashboard.putNumber("Throttle Value", throttleValue);
+        moveDistance();
+        calculateMotorOutputs(throttleValue, turnValue);
+        setMotorOutput(leftOutput, rightOutput);
+    }
+
     /** 
      * Periodic update drivetrain loop
      */
@@ -307,6 +316,8 @@ public class DriveTrain {
 			//Move distance without tracking vision target
             //distance_error = targetDistance - getAverageDistance();
             distance_error = targetDistance - getLeftWheelDistance();
+
+            SmartDashboard.putNumber("Distance Error", distance_error);
 			
 			//Check Distance
 			if((targetDistance > 0) && 

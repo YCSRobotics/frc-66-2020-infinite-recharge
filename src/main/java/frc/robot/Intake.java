@@ -9,7 +9,7 @@ package frc.robot;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.*;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Joystick;
@@ -21,7 +21,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * Handles code to actuate intake
  */
 public class Intake {
-    private final static TalonSRX intakeMotor = new TalonSRX(Constants.kMotorIntakePort);
+    //private final static TalonSRX intakeMotor = new TalonSRX(Constants.kMotorIntakePort);
+    private final static WPI_VictorSPX intakeMotor = new WPI_VictorSPX(Constants.kMotorIntakePort);
     private final static TalonSRX indexStage1Motor = new TalonSRX(Constants.kMotorIndexStage1Port);
     private final static TalonSRX indexStage2Motor = new TalonSRX(Constants.kMotorIndexStage2Port);
 
@@ -165,14 +166,14 @@ public class Intake {
         }
 
         if(isSingleShotCmd){
-            indexStage2Motor.set(ControlMode.PercentOutput, 1);
+            indexStage2Motor.set(ControlMode.PercentOutput, -1);
         } else{
             indexStage2Motor.set(ControlMode.PercentOutput, 0);
         }
 
         if(operatorController.getRawButton(Constants.kLeftBumper)){
             indexStage1Motor.set(ControlMode.PercentOutput, 1);
-            indexStage2Motor.set(ControlMode.PercentOutput, -1);
+            indexStage2Motor.set(ControlMode.PercentOutput, 1);
             intakeMotor.set(ControlMode.PercentOutput, 1);
         }
 
@@ -294,6 +295,18 @@ public class Intake {
             indexStage1Motor.set(ControlMode.PercentOutput, 0);
             currentIntakeState = INTAKE;
         }
+    }
+
+    public static void setIntakeSpeed(double speed){
+        intakeMotor.set(ControlMode.PercentOutput, speed);
+    }
+
+    public static void setStage1Speed(double speed){
+        indexStage1Motor.set(ControlMode.PercentOutput, speed);
+    }
+
+    public static void setStage2Speed(double speed){
+        indexStage2Motor.set(ControlMode.PercentOutput, speed);
     }
 
 }

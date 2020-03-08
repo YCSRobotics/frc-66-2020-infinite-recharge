@@ -9,19 +9,17 @@ public class AutoRoutine {
 
     //Autonomous Routines
     final static int DO_NOTHING           = 0;
+    final static int MOVE_ONLY            = 1;
+    final static int AUTO_LINE_SHOOT      = 2;
+    final static int KESSEL_RUN           = 3;
 
     //Autonomous States
-    final static int START                        = 0;
-    final static int MOVE_DISTANCE                = 1;
-    final static int TURN_LEFT                    = 2;
-    final static int TURN_RIGHT                   = 3;
-    final static int MOVE_VISION_TARGET           = 4;
-    final static int AUTO_TURN_DELAY              = 5;
-    final static int RELEASE_HATCH                = 6;
-    final static int MOVE_DISTANCE_TARGET         = 7;
-    final static int MOVE_DISTANCE_ROCKET         = 8;
-    final static int BACK_TARGET                  = 9;
-    final static int STOP                         = 255;
+    final static int START                = 0;
+    final static int START_DELAY          = 1;
+    final static int SHOOT_DELAY          = 2;
+    final static int SHOOT                = 3;
+    final static int MOVE_DISTANCE        = 4;
+    final static int STOP                 = 255;
 
     public static double alarmTime;
 
@@ -29,137 +27,114 @@ public class AutoRoutine {
     public static int currentAutonState = START;
     public static boolean isWithinTargetRange = false;
 
+    public AutoRoutine(){
+        SmartDashboard.putNumber("Auton State", currentAutonState);
+        SmartDashboard.putNumber("Selected Auto Routine", selectedAutonRoutine);
+    }
+
     public void setSelectedAutonRoutine(int routine){
         selectedAutonRoutine = routine;
+    }
+
+    public void initAutoRoutine(){
+        currentAutonState = START;
     }
 
     /**
      * Autonomous State Machine
      */
     public void updateAutoRoutine(){
+        SmartDashboard.putNumber("Selected Auto Routine", selectedAutonRoutine);
         SmartDashboard.putNumber("Current Auto Routine", currentAutonState);
         switch(currentAutonState){
             case START:
                 stateActionStart();
                 break;
+            case START_DELAY:
+                stateActionStartDelay();
+                break;
+            case SHOOT_DELAY:
+                stateActionShootDelay();
+                break;
+            case SHOOT:
+                stateActionShoot();
+                break;
             case MOVE_DISTANCE:
-                stateActionInitMoveDistance();
-                break;
-            case TURN_LEFT:
-                stateActionInitRocketTurn();
-                break;
-            case TURN_RIGHT:
-                stateActionInitRocketTurn();
-                break;
-            case MOVE_VISION_TARGET:
-                stateActionMoveVisionTarget();
-                break;
-            case AUTO_TURN_DELAY:
-                stateAutoTurnDelay();
-                break;
-            case MOVE_DISTANCE_TARGET:
-                stateActionRocketDeadReckoningMovement();
-                break;
-            case MOVE_DISTANCE_ROCKET:
-                stateActionRocketMoveDistance();
-                break;
-            case RELEASE_HATCH:
-                stateActionReleaseHatch();
-                break;
-            case BACK_TARGET:
-                stateActionBackFromRocket();
+                stateActionMoveDistance();
                 break;
             case STOP:
             default:
                 stateActionStop();
             }
+
+            SmartDashboard.putNumber("Auton State", currentAutonState);
     }
 
-    //called at the beginning of every autonomous method
+    private void stateActionStartDelay() {
+        if (timer.get() >= alarmTime){
+            setAutonDelay(1);
+            Shooter.setAutoShotEnabled(true);
+            currentAutonState = SHOOT_DELAY;
+        }else{
+            //Wait for timer to expire
+        }
+
+    }
+
+    private void stateActionShootDelay() {
+        if (timer.get() >= alarmTime){
+            //Shooter.setAutoShotEnabled();
+            Intake.setStage1Speed(-1);
+            setAutonDelay(5);
+            currentAutonState = SHOOT;
+        }else{
+            //Wait for timer to expire
+        }
+
+    }
+
+    private void stateActionShoot() {
+        if(timer.get() >=alarmTime){
+            Shooter.setAutoShotEnabled(false);
+            Intake.setIntakeSpeed(0);
+            Intake.setStage1Speed(0);
+            Intake.setStage2Speed(0);
+            DriveTrain.setMoveDistance(20, 0.5);
+            currentAutonState = MOVE_DISTANCE;
+        }
+        else{
+            //Do nothing and wait for timeout
+        }
+    }
+
+    // called at the beginning of every autonomous method
     private void stateActionStart(){
         if(selectedAutonRoutine != DO_NOTHING){
-        //go straight to stop if the selected auton routine was do nothing
+            if(selectedAutonRoutine == MOVE_ONLY){
+                DriveTrain.setMoveDistance(-20, -.25);
+                currentAutonState = MOVE_DISTANCE;
+            }else if ((selectedAutonRoutine == AUTO_LINE_SHOOT)){
+                Shooter.setAutoShotEnabled(true);
+                Shooter.setAutoTurretEnabled(true);
+                Intake.setStage2Speed(-1);
+                setAutonDelay(0.5);
+                currentAutonState = START_DELAY;
+            }else{}
         } else{
+            //go straight to stop if the selected auton routine was do nothing
             currentAutonState = STOP;
         }
     }
 
-    //handles init robot movement off of hab
-    private void stateActionInitMoveDistance(){
-        //wait for the robot to finish moving, and then go to the next state
-        if(!DriveTrain.isMovingDistance()) {
+    private void stateActionMoveDistance(){
 
+        if(!DriveTrain.isMovingDistance()) {
+            if(selectedAutonRoutine == MOVE_ONLY){
+                currentAutonState = STOP;
+            }
         } else{
             //Wait for move to complete
-
         }
-    }
-
-    //handles turning in the direction of the rocket
-    private void stateActionInitRocketTurn() {
-        //when finished turning, continue to next state
-        if(!DriveTrain.isTurning()) {
-
-        } else {
-            //wait for turn to complete
-
-        }
-    }
-
-    //handles movement toward the rocket if dead reckoning was triggered
-    private void stateActionRocketDeadReckoningMovement() {
-        if (!DriveTrain.isMovingDistance()) {
-            if (!isWithinTargetRange) {
-                currentAutonState = STOP;
-
-            } else {
-                //TODO - handle autonomously placing hatch panels
-                //currentAutonState = RELEASE_HATCH;
-                currentAutonState = STOP;
-
-            }
-
-        } else {
-            //wait to finish move distance
-        }
-    }
-
-    //back away from the rocket
-    private void stateActionBackFromRocket() {
-        if(!DriveTrain.isMovingDistance()) {
-            currentAutonState = STOP;
-
-        } else {
-            //wait to finish backing up
-
-        }
-    }
-
-    //autonomously releases the hatch and begins to back away
-    private void stateActionReleaseHatch() {
-        //Intake.setHatchState(true);
-        DriveTrain.setMoveDistance(Constants.kBackupDistance, -Constants.kBackupPower);
-        currentAutonState = BACK_TARGET;
-
-    }
-
-    private void stateActionMoveVisionTarget() {
-        
-    }
-
-    //after turn, move forward a little bit to straighten the robot out
-    private void stateActionRocketMoveDistance() {
-        if (!DriveTrain.isMovingDistance()) {
-            setAutonDelay(0.5);
-            currentAutonState = AUTO_TURN_DELAY;
-
-        } else {
-            //wait to finish move distance
-        }
-    }
-
-    //once we wait a small amount of time, continue
-    private void stateAutoTurnDelay() {
     }
 
     private void stateActionStop(){
